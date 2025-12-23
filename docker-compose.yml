@@ -1,0 +1,82 @@
+# // docker-compose.yml
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NUXT_PUBLIC_API_URL=http://localhost:4000
+    networks:
+      - public_net
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    develop:
+      watch:
+      - action: sync
+        path: ./src
+        target: /app/src
+        ignore:
+          - node_modules
+      - action: rebuild
+        path: ./package.json
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/code_db
+      - JUDGE0_URL=http://judge0:2358
+    networks:
+      - public_net
+      - private_net
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    pull_policy: if_not_present
+    ports:
+      - "5432:5432"
+    networks:
+      - private_net
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: code_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  judge0:
+    image: judge0/judge0:latest-extra-dev
+    pull_policy: if_not_present 
+    networks:
+      - private_net
+    depends_on:
+      - judge0-db
+      - judge0-redis
+
+  judge0-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0_password
+      POSTGRES_DB: judge0
+    networks:
+      - private_net
+
+  judge0-redis:
+    image: redis:7-alpine
+    networks:
+      - private_net
+
+networks:
+  public_net:
+  private_net:
+
+volumes:
+  pgdata:

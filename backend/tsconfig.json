@@ -1,0 +1,17 @@
+// backend/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "lib": ["ESNext"],
+    "types": ["node"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist"
+    // Note: We REMOVED rootDir from here
+  },
+  "include": ["src/**/*", "drizzle.config.ts"]
+}
