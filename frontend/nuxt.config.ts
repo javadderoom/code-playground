@@ -3,57 +3,87 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  // Disable devtools in development to save memory
+  devtools: { enabled: false },
   css: ['~/assets/css/main.scss'],
+
+  // Optimize Vite for lower memory usage
   vite: {
     server: {
       watch: {
-        usePolling: true, // 👈 Required for Windows + Docker
+        usePolling: true, // Required for Windows + Docker
       },
       hmr: {
-        // This ensures the browser can talk to the HMR websocket
         protocol: 'ws',
         host: 'localhost',
       },
+      // Reduce memory usage
+      fs: {
+        // Restrict file system access to improve performance
+        strict: true
+      }
     },
-   
+
     css: {
       preprocessorOptions: {
         scss: {
-          // Allow deprecated @import syntax for Tailwind CSS v4 compatibility
           silenceDeprecations: ['import'],
         },
       },
     },
+
+    // Optimize build performance
+    build: {
+      rollupOptions: {
+        // Reduce bundle size and memory usage
+        output: {
+          manualChunks: {
+            vendor: ['vue', 'vue-router'],
+            ui: ['@nuxt/ui']
+          }
+        }
+      }
+    },
+
+    // Reduce memory pressure
+    optimizeDeps: {
+      // Pre-bundle fewer dependencies to save memory
+      include: [
+        'vue',
+        'vue-router',
+        '@unhead/vue'
+      ]
+    }
   },
+
   postcss: {
     plugins: {
       '@tailwindcss/postcss': {},
       autoprefixer: {},
     },
   },
-  // Ensure the dev server listens on all interfaces inside Docker
+
+  // Dev server config
   devServer: {
     host: '0.0.0.0',
     port: 3000
   },
+
   runtimeConfig: {
     public: {
-      // Both SSR and client-side use localhost since backend is in Docker
       apiBaseSSR: 'http://localhost:4000',
       apiBaseClient: 'http://localhost:4000'
     }
   },
+
+  // Keep only essential modules for development
   modules: [
-    '@nuxt/eslint',
-    '@nuxt/content',
-    '@nuxt/hints',
-    '@nuxt/image',
-    '@nuxt/scripts',
-    '@nuxt/test-utils',
-    '@nuxt/ui',
-    'nuxt-monaco-editor',
+    // Essential modules only
+    '@nuxt/ui', // UI components
+    'nuxt-monaco-editor', // Code editor
   ],
+
+  // Optimize module configurations
   monacoEditor: {
     locale: 'en',
     componentName: {
@@ -61,4 +91,22 @@ export default defineNuxtConfig({
       diffEditor: 'MonacoDiffEditor'
     }
   },
+
+  // Performance optimizations
+  experimental: {
+    // Reduce payload size
+    payloadExtraction: false,
+    // Optimize rendering
+    renderJsonPayloads: true
+  },
+
+  // Nitro configuration for better performance
+  nitro: {
+    // Enable prerendering for better performance
+    prerender: {
+      routes: ['/']
+    },
+    // Optimize bundle size
+    minify: true
+  }
 })

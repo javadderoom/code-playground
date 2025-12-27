@@ -5,7 +5,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsx watch src/index.ts",
-    "db:generate": "npx drizzle-kit generate"
+    "db:generate": "npx drizzle-kit generate",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:integration": "docker-compose up -d && sleep 5 && npm run test:run -- --reporter=verbose"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.7",
@@ -20,6 +23,7 @@
     "pino": "^9.3.2",
     "postgres": "^3.4.4",
     "slugify": "^1.6.6",
+    "supertest": "^7.1.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {

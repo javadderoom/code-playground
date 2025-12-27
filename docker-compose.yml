@@ -1,27 +1,6 @@
 # // docker-compose.yml
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    # Volume mounts for hot-reload in development
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.nuxt
-      - /app/.output
-    ports:
-      - "3000:3000"
-    environment:
-      - NUXT_PUBLIC_API_BASE_SSR=http://backend:4000
-      - NUXT_PUBLIC_API_BASE_CLIENT=http://localhost:4000
-      - CHOKIDAR_USEPOLLING=true
-      - NODE_ENV=development
-    networks:
-      - public_net
-    depends_on:
-      - backend
-
+ 
 # // backend section of docker-compose.yml
   backend:
     build: 
