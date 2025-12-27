@@ -5,7 +5,8 @@ import { pgTable, serial, text, integer, timestamp, boolean } from 'drizzle-orm/
 export const problems = pgTable('problems', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
-  description: text('description').notNull(), // Markdown problem description
+  slug: text('slug').notNull().unique(), // e.g., "two-sum"
+  description: text('description').notNull(), // Persian Markdown content
   difficulty: text('difficulty').$type<'Easy' | 'Medium' | 'Hard'>().notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });

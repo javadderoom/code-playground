@@ -1,0 +1,65 @@
+// Import Tailwind CSS v4
+@import "tailwindcss";
+
+// Import variables
+@import "variables";
+
+// Custom styles can go here
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin card-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+// Utility classes
+.flex-center {
+  @include flex-center;
+}
+
+.card-shadow {
+  @include card-shadow;
+}
+
+// Custom component styles
+.btn-primary {
+  @apply bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md;
+  @apply transition-colors duration-200;
+  @include card-shadow;
+}
+
+.btn-secondary {
+  @apply bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md;
+  @apply transition-colors duration-200;
+}
+
+.code-editor {
+  @apply bg-gray-900 text-gray-100 p-4 rounded-lg;
+  font-family: $font-family-mono;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+// Global styles
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family-primary;
+  line-height: 1.6;
+  color: rgb(31 41 55); // gray-800
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: rgb(17 24 39); // gray-900
+    color: rgb(243 244 246); // gray-100
+  }
+}

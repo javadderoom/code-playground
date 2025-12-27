@@ -1,0 +1,52 @@
+ judge0:
+    image: judge0/judge0:latest-extra-dev
+    container_name: judge0
+    privileged: true
+    command: ["/api/scripts/server"]
+    environment:
+      # Database (Rails expects these specific names)
+      - POSTGRES_HOST=judge0-db
+      - POSTGRES_USER=judge0
+      - POSTGRES_PASSWORD=judge0_password
+      - POSTGRES_DB=judge0
+      # Judge0 specific config
+      - JUDGE0_DB_HOST=judge0-db
+      - JUDGE0_DB_USER=judge0
+      - JUDGE0_DB_PASS=judge0_password
+      - JUDGE0_DB_NAME=judge0
+      # Redis (Resque expects these specific names)
+      - REDIS_HOST=judge0-redis
+      - REDIS_PORT=6379
+      # Judge0 Redis config
+      - JUDGE0_REDIS_HOST=judge0-redis
+      - JUDGE0_REDIS_PORT=6379
+      # Sandbox Security
+      - JUDGE0_ALLOW_NETWORKING=true
+      - JUDGE0_WORKERS=1
+    ports:
+      - "2358:2358"
+    networks:
+      - private_net
+    restart: always
+    volumes:
+      - ./judge0.conf:/etc/judge0.conf:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw 
+
+  judge0-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0_password
+      POSTGRES_DB: judge0
+    networks:
+      - private_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U judge0"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  judge0-redis:
+    image: redis:7-alpine
+    networks:
+      - private_net

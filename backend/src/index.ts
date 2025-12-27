@@ -1,36 +1,25 @@
-// packages/backend/src/index.ts
+
+import 'dotenv/config' 
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
-import { cors } from 'hono/cors'
-import { db } from './db/index.js';
-import { problems } from './db/schema.js';
+import indexRoutes from './routes/index'
+import problemRoutes from './routes/problems'
+import judgeRoutes from './routes/judge' 
+import dns from 'node:dns';
+import { corsMiddleWare } from './middleware/cors.js';
+dns.setDefaultResultOrder('ipv4first'); 
 
 const app = new Hono()
 
 // Security: Only allow your Nuxt frontend to talk to this API
-app.use('/api/*', cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-}))
+app.use('/api/*', corsMiddleWare)
 
-app.get('/', (c) => {
-  return c.json({ message: 'Code Playground API is running!' })
-})
+app.route('/', indexRoutes)
 
-app.get('/api/problems', async (c) => {
-  // const data = await db.select().from(problems);
-  return c.json({ problems: [] })
-})
-app.get('/api/test-db', async (c) => {
-  try {
-    // Attempt to fetch all problems (will be an empty array for now)
-    const result = await db.select().from(problems);
-    return c.json({ status: 'Connected to DB!', data: result });
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-    return c.json({ status: 'Error', message: errorMessage }, 500);
-  }
-});
+app.route('/api/problems', problemRoutes)
+
+app.route('/api/judge', judgeRoutes)
+
 
 console.log('🚀 Server is running on http://localhost:4000')
 serve({ fetch: app.fetch, port: 4000 })

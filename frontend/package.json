@@ -7,7 +7,9 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@nuxt/content": "^3.9.0",
@@ -17,12 +19,27 @@
     "@nuxt/scripts": "^0.13.2",
     "@nuxt/test-utils": "^3.21.0",
     "@nuxt/ui": "^4.3.0",
+    "@tailwindcss/vite": "^4.1.18",
     "@unhead/vue": "^2.0.19",
     "better-sqlite3": "^12.5.0",
     "eslint": "^9.39.2",
+    "monaco-editor": "^0.55.1",
     "nuxt": "^4.2.2",
+    "nuxt-monaco-editor": "^1.4.0",
+    "sass": "^1.77.8",
+    "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
     "vue": "^3.5.25",
     "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^20.x.x",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "happy-dom": "^20.0.11",
+    "postcss": "^8.5.6",
+    "sass-embedded": "^1.97.1",
+    "vitest": "^3.2.4"
   }
 }

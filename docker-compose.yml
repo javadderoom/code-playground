@@ -3,34 +3,43 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
+    # Volume mounts for hot-reload in development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.nuxt
+      - /app/.output
     ports:
       - "3000:3000"
     environment:
-      - NUXT_PUBLIC_API_URL=http://localhost:4000
+      - NUXT_PUBLIC_API_BASE_SSR=http://backend:4000
+      - NUXT_PUBLIC_API_BASE_CLIENT=http://localhost:4000
+      - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=development
     networks:
       - public_net
     depends_on:
       - backend
 
+# // backend section of docker-compose.yml
   backend:
-    build:
+    build: 
       context: ./backend
-      dockerfile: Dockerfile
-    develop:
-      watch:
-      - action: sync
-        path: ./src
-        target: /app/src
-        ignore:
-          - node_modules
-      - action: rebuild
-        path: ./package.json
+    # This maps your local Windows 'backend' folder to the container's '/app'
+    volumes:
+      - ./backend:/app
+      # This line is CRITICAL: It tells Docker NOT to overwrite 
+      # the container's Linux node_modules with your Windows ones.
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - DATABASE_URL=postgres://user:password@db:5432/code_db
+      - RAPIDAPI_KEY=eb0ee2b81dmsh268c3c32d7ace20p16531ejsnc09bf866d863
+      - RAPIDAPI_HOST=judge0-ce.p.rapidapi.com
+      - JUDGE0_URL=https://judge0-ce.p.rapidapi.com
     ports:
       - "4000:4000"
-    environment:
-      - DATABASE_URL=postgres://user:password@db:5432/code_db
-      - JUDGE0_URL=http://judge0:2358
     networks:
       - public_net
       - private_net
@@ -51,29 +60,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  judge0:
-    image: judge0/judge0:latest-extra-dev
-    pull_policy: if_not_present 
-    networks:
-      - private_net
-    depends_on:
-      - judge0-db
-      - judge0-redis
 
-  judge0-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: judge0
-      POSTGRES_PASSWORD: judge0_password
-      POSTGRES_DB: judge0
-    networks:
-      - private_net
 
-  judge0-redis:
-    image: redis:7-alpine
-    networks:
-      - private_net
-
+ 
 networks:
   public_net:
   private_net:
