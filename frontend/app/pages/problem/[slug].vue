@@ -1,121 +1,136 @@
-<template>
-  <!-- Ensure h-screen and flex are working -->
-  <div class="h-screen flex flex-col bg-[#0f172a] text-slate-200" dir="rtl">
-    
-    <!-- Navbar: Fixed Height -->
-    <nav class="h-16 border-b border-slate-800 flex justify-between items-center px-6 bg-[#1e293b] shrink-0">
-      <div class="flex items-center gap-6">
-        <NuxtLink to="/" class="text-emerald-500 hover:text-emerald-400 font-bold">← لیست مسائل</NuxtLink>
-        <h1 class="text-xl font-bold">{{ problem?.title }}</h1>
-      </div>
-      <button @click="submitCode" :disabled="loading" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-2 rounded-lg font-bold transition-all disabled:opacity-50">
-        {{ loading ? 'در حال پردازش...' : 'ارسال کد' }}
-      </button>
-    </nav>
-
-    <!-- Content Area: Uses flex-1 to fill remaining space -->
-    <div class="flex-1 flex overflow-hidden">
-      
-      <!-- Right Pane: Description -->
-      <div class="w-1/2 p-8 overflow-y-auto border-l border-slate-800">
-        <div v-if="problem">
-          <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-emerald-400 mb-4 inline-block">
-            {{ problem.difficulty }}
-          </span>
-          <h2 class="text-3xl font-bold mb-6">{{ problem.title }}</h2>
-          <p class="text-lg leading-relaxed text-slate-300 whitespace-pre-wrap">{{ problem.description }}</p>
-        </div>
-      </div>
-
-      <!-- Left Pane: Editor (LTR) -->
-      <div class="w-1/2 flex flex-col bg-[#1e293b]" dir="ltr">
-        <div class="flex-1 w-full relative min-h-[400px]">
-          <!-- IMPORTANT: Use a wrapper with h-full -->
-          <MonacoEditor
-            v-model="userCode"
-            lang="python"
-            :options="{ 
-              theme: 'vs-dark', 
-              fontSize: 18, 
-              minimap: { enabled: false },
-              automaticLayout: true,
-              scrollBeyondLastLine: false,
-            }"
-            class="absolute inset-0" 
-          />
-        </div>
-
-        <!-- Terminal: Fixed Height -->
-        <div class="h-64 bg-black p-4 font-mono border-t border-slate-800">
-          <p class="text-slate-500 text-xs mb-2 uppercase tracking-widest">Console Output</p>
-          <div class="overflow-y-auto h-48">
-             <pre v-if="result" :class="result.code === 0 ? 'text-green-400' : 'text-red-400'" class="whitespace-pre-wrap">{{ result.stdout || result.stderr }}</pre>
-             <p v-else class="text-slate-600 italic">...برای مشاهده نتیجه، کد را ارسال کنید</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-  
-  <script setup>
+<!-- frontend/pages/problem/[slug].vue -->
+<script setup>
   const route = useRoute()
   const config = useRuntimeConfig()
-
-
-  const userCode = ref("# کد خود را اینجا بنویسید\nimport sys\n\ninput_data = sys.stdin.read().split()\n# logic here...")
-  const loading = ref(false)
+  
+  // State management
+  const userCode = ref('# بنویسید...')
   const result = ref(null)
+  const isLoading = ref(false)
   
-  // 1. Fetch all problems and find the one with matching slug
-  const baseURL = process.server
-    ? config.public.apiBaseSSR
-    : config.public.apiBaseClient
-
-  const { data: response } = await useFetch('/api/problems', {
-    baseURL
+  // 1. Fetch problem details from Hono
+  const { data: problem, pending, error } = await useFetch(`${config.public.apiBaseClient}/api/problems/${route.params.slug}`, {
+    server: false
   })
-
-  const problems = computed(() => response.value?.problems || [])
-  const problem = computed(() =>
-    problems.value.find(p => p.slug === route.params.slug)
-  )
   
-  const difficultyClass = (d) => {
-    if (d === 'Easy') return 'text-green-400 bg-green-900/30'
-    if (d === 'Medium') return 'text-yellow-400 bg-yellow-900/30'
-    return 'text-red-400 bg-red-900/30'
-  }
-  
-  const submitCode = async () => {
-    loading.value = true
+  // 2. Submit code to Backend
+  const handleRun = async () => {
+    isLoading.value = true
     result.value = null
     try {
-      const data = await $fetch('/api/judge/execute', {
-        baseURL,
+      const data = await $fetch(`${config.public.apiBaseClient}/api/submit`, {
         method: 'POST',
         body: {
-          language: 'python',
-          version: '3.10.0',
-          files: [{
-            name: 'main.py',
-            content: userCode.value
-          }]
+          code: userCode.value,
+          language: 'python', // We can make this dynamic later
+          problemId: problem.value.id
         }
       })
       result.value = data
     } catch (err) {
-      result.value = { stderr: 'خطا در برقراری ارتباط با سرور', code: 1 }
+      result.value = { stderr: 'Error connecting to the execution engine.' }
     } finally {
-      loading.value = false
+      isLoading.value = false
     }
+  }
+  
+  // 3. UI Helpers
+  const difficultyClass = (level) => {
+    const map = {
+      'Easy': 'text-emerald-400 bg-emerald-400/10',
+      'Medium': 'text-amber-400 bg-amber-400/10',
+      'Hard': 'text-rose-400 bg-rose-400/10'
+    }
+    return map[level] || 'text-gray-400 bg-gray-400/10'
   }
   </script>
   
-  <style>
-  /* Custom Scrollbar for a "dark" look */
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: #0f172a; }
-  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  <template>
+    <div class="h-screen flex flex-col bg-[#0d1117] text-gray-300 overflow-hidden" dir="rtl">
+      <!-- Header -->
+      <header class="h-14 border-b border-gray-800 flex items-center justify-between px-6 bg-[#161b22] shrink-0">
+        <div class="flex items-center gap-6">
+          <NuxtLink to="/" class="text-gray-400 hover:text-white transition">← بازگشت</NuxtLink>
+          <h1 v-if="problem" class="text-lg font-semibold text-white">{{ problem.title }}</h1>
+        </div>
+        <div class="flex gap-3">
+          <button 
+            @click="handleRun" 
+            :disabled="isLoading || pending"
+            class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-5 py-1.5 rounded-md font-bold transition-all shadow-lg shadow-emerald-900/20"
+          >
+            <span v-if="isLoading" class="animate-spin text-lg">↻</span>
+            <span>اجرای کد</span>
+          </button>
+        </div>
+      </header>
+  
+      <!-- Main Body -->
+      <div class="flex-1 flex overflow-hidden">
+        <!-- Right Pane: Description (Persian) -->
+        <section class="w-1/2 overflow-y-auto border-l border-gray-800 p-8 custom-scrollbar">
+          <div v-if="pending" class="animate-pulse space-y-4">
+            <div class="h-4 bg-gray-800 rounded w-1/4"></div>
+            <div class="h-8 bg-gray-800 rounded w-3/4"></div>
+            <div class="h-32 bg-gray-800 rounded"></div>
+          </div>
+  
+          <div v-else-if="problem">
+            <span :class="difficultyClass(problem.difficulty)" class="px-2 py-1 rounded text-xs font-medium uppercase tracking-wider">
+              {{ problem.difficulty }}
+            </span>
+            <h2 class="text-3xl font-bold mt-4 mb-6 text-white">{{ problem.title }}</h2>
+            <div class="prose prose-invert max-w-none text-gray-300 leading-loose text-lg">
+              {{ problem.description }}
+            </div>
+          </div>
+        </section>
+  
+        <!-- Left Pane: Editor (English/Code) -->
+        <section class="w-1/2 flex flex-col bg-[#0d1117]" dir="ltr">
+          <!-- Editor Container -->
+          <div class="flex-1 relative border-b border-gray-800">
+            <MonacoEditor
+              v-model="userCode"
+              lang="python"
+              :options="{ 
+                theme: 'vs-dark', 
+                fontSize: 16, 
+                lineNumbers: 'on',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                padding: { top: 16 },
+                scrollBeyondLastLine: false,
+                fontFamily: 'JetBrains Mono, Menlo, Monaco, Courier New, monospace'
+              }"
+              class="absolute inset-0"
+            />
+          </div>
+  
+          <!-- Result Console -->
+          <div class="h-64 bg-[#010409] p-5 font-mono text-sm overflow-y-auto custom-scrollbar">
+            <h4 class="text-gray-500 text-xs mb-3 flex justify-between items-center uppercase tracking-widest">
+              <span>Console Result</span>
+              <span v-if="result" :class="result.code === 0 ? 'text-emerald-500' : 'text-rose-500'">
+                Exit Status: {{ result.code }}
+              </span>
+            </h4>
+            <div v-if="result">
+              <pre v-if="result.stdout" class="text-emerald-400 whitespace-pre-wrap">{{ result.stdout }}</pre>
+              <pre v-if="result.stderr" class="text-rose-400 whitespace-pre-wrap">{{ result.stderr }}</pre>
+            </div>
+            <div v-else class="text-gray-600 italic mt-2">
+              Write your solution and click "Run" to see the output.
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </template>
+  
+  <style scoped>
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #484f58; }
   </style>

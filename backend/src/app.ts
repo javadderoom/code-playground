@@ -16,7 +16,7 @@ app.use('/api/*', corsMiddleWare)
 // Routes
 app.route('/', indexRoutes)
 app.route('/api/problems', problemRoutes)
-// app.route('/api/judge', judgeRoutes)
+app.route('/api/judge', judgeRoutes)
 
 
 // 404 Handler

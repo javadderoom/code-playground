@@ -1,3 +1,7 @@
+// frontend/app.vue
 <template>
-  <NuxtPage />
+  <div class="antialiased font-sans">
+    <!-- NuxtPage is the window that renders our index and [slug] pages -->
+    <NuxtPage />
+  </div>
 </template>
