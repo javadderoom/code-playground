@@ -38,8 +38,7 @@ export default defineNuxtConfig({
         // Reduce bundle size and memory usage
         output: {
           manualChunks: {
-            vendor: ['vue', 'vue-router'],
-            ui: ['@nuxt/ui']
+            vendor: ['vue', 'vue-router']
           }
         }
       }
@@ -79,18 +78,19 @@ export default defineNuxtConfig({
   // Keep only essential modules for development
   modules: [
     // Essential modules only
-    '@nuxt/ui', // UI components
+    '@pinia/nuxt', // State management
     'nuxt-monaco-editor', // Code editor
   ],
 
-  // Optimize module configurations
-  monacoEditor: {
-    locale: 'en',
-    componentName: {
-      codeEditor: 'MonacoEditor',
-      diffEditor: 'MonacoDiffEditor'
-    }
-  },
+    // Optimize module configurations
+    // Note: @nuxt/ui was removed due to client-side import issues with @nuxt/kit
+    monacoEditor: {
+      locale: 'en',
+      componentName: {
+        codeEditor: 'MonacoEditor',
+        diffEditor: 'MonacoDiffEditor'
+      }
+    },
 
   // Performance optimizations
   experimental: {

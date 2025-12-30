@@ -12,13 +12,15 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "@nuxt/ui": "^4.3.0",
+    "@pinia/nuxt": "^0.11.3",
     "@tailwindcss/vite": "^4.1.18",
     "@unhead/vue": "^2.0.19",
+    "dompurify": "^3.3.1",
     "marked": "^17.0.1",
     "monaco-editor": "^0.55.1",
     "nuxt": "^4.2.2",
     "nuxt-monaco-editor": "^1.4.0",
+    "pinia": "^3.0.4",
     "sass": "^1.77.8",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",

@@ -1,6 +1,7 @@
 <!-- frontend/pages/index.vue -->
-<script setup>
+<script setup lang="ts">
  const config = useRuntimeConfig()
+
 
 // Use different API bases for server-side vs client-side
 const baseURL = process.server
@@ -10,7 +11,7 @@ const baseURL = process.server
 const { data: response, pending, error } = await useFetch('/api/problems', {
   baseURL
 })
-const problems = computed(() => response.value?.problems || [])
+const problems = computed(() => (response.value as any)?.problems || [])
   </script>
   
   <template>

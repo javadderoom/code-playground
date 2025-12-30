@@ -1,17 +1,19 @@
 <!-- frontend/pages/problem/[slug].vue -->
-<script setup>
+<script setup lang="ts">
   import { marked } from 'marked'
+  import DOMPurify from 'dompurify'
+  import type { SubmissionResult, Problem } from '../../../types/types'
   
   const route = useRoute()
   const config = useRuntimeConfig()
   
   // State management
   const userCode = ref('# بنویسید...')
-  const result = ref(null)
+  const result = ref<SubmissionResult | null>(null)
   const isLoading = ref(false)
   
   // 1. Fetch problem details from Hono
-  const { data: problem, pending, error } = await useFetch(`${config.public.apiBaseClient}/api/problems/${route.params.slug}`, {
+  const { data: problem, pending, error } = await useFetch<Problem>(`${config.public.apiBaseClient}/api/problems/${route.params.slug}`, {
     server: false,
     onResponse({ response }) {
       if (response.ok && response._data?.starterCode) {
@@ -22,10 +24,12 @@
   
   // 2. Submit code to Backend
   const handleRun = async () => {
+    if (!problem.value) return
+    
     isLoading.value = true
     result.value = null
     try {
-      const data = await $fetch(`${config.public.apiBaseClient}/api/judge/submit`, {
+      const data = await $fetch<SubmissionResult>(`${config.public.apiBaseClient}/api/judge/submit`, {
         method: 'POST',
         body: {
           code: userCode.value,
@@ -36,7 +40,7 @@
       result.value = data
     } catch (err) {
       result.value = { 
-        status: 'Error',
+        status: 'Error' as const,
         error: 'Error connecting to the execution engine.',
         results: []
       }
@@ -46,8 +50,8 @@
   }
   
   // 3. UI Helpers
-  const difficultyClass = (level) => {
-    const map = {
+  const difficultyClass = (level: 'Easy' | 'Medium' | 'Hard') => {
+    const map: Record<'Easy' | 'Medium' | 'Hard', string> = {
       'Easy': 'text-emerald-400 bg-emerald-400/10',
       'Medium': 'text-amber-400 bg-amber-400/10',
       'Hard': 'text-rose-400 bg-rose-400/10'
@@ -55,10 +59,11 @@
     return map[level] || 'text-gray-400 bg-gray-400/10'
   }
   
-  // 4. Markdown rendering
+  // 4. Markdown rendering (with HTML sanitization)
   const renderedDescription = computed(() => {
     if (!problem.value?.description) return ''
-    return marked.parse(problem.value.description)
+    const html = marked.parse(problem.value.description) as string
+    return DOMPurify.sanitize(html)
   })
   </script>
   
