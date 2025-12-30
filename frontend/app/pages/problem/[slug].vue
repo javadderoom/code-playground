@@ -31,7 +31,7 @@
     }
   })
   
-  // 2. Submit code to Backend
+  // 2. Submit code to Backend/execute
   const handleRun = async () => {
     if (!rootStore.state.problem.id) return
 
@@ -44,8 +44,20 @@
       isLoading.value = false
     }
   }
-  
-  // 3. UI Helpers
+  // 3. Submit code to Backend/submit
+  const handleSubmit = async () => {
+    if (!rootStore.state.problem.id) return
+
+    isLoading.value = true
+    result.value = null
+    try {
+      const data = await rootStore.submitCode(userCode.value, 'python')
+      result.value = data
+    } finally {
+      isLoading.value = false
+    }
+  }
+  // 4. UI Helpers
   const difficultyClass = (level: 'Easy' | 'Medium' | 'Hard') => {
     const map: Record<'Easy' | 'Medium' | 'Hard', string> = {
       'Easy': 'text-emerald-400 bg-emerald-400/10',
@@ -75,10 +87,19 @@
             <button
             @click="handleRun"
             :disabled="isLoading || rootStore.state.isProblemLoading"
+            class="flex items-center justify-center w-10 h-10 bg-blue-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-md font-bold transition-all shadow-lg shadow-emerald-900/20"
+            :title="'Run Code'"
+          >
+            <span v-if="isLoading" class="animate-spin text-lg material-icons">refresh</span>
+            <span v-else class="text-lg material-icons">send</span>
+          </button>
+          <button
+            @click="handleSubmit"
+            :disabled="isLoading || rootStore.state.isProblemLoading"
             class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-5 py-1.5 rounded-md font-bold transition-all shadow-lg shadow-emerald-900/20"
           >
-            <span v-if="isLoading" class="animate-spin text-lg">↻</span>
-            <span>اجرای کد</span>
+          <span v-if="isLoading" class="animate-spin text-lg material-icons">refresh</span>
+            <span>ثبت جواب</span>
           </button>
         </div>
       </header>

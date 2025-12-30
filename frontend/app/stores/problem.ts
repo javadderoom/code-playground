@@ -76,14 +76,39 @@ export const useProblemStore = defineStore('problem', () => {
       };
     }
   };
-
+  const submitCode = async (code: string, language: string): Promise<SubmissionResult> => {
+    // Guard using our ID check
+    if (problem.value.id === 0) {
+       return { status: 'Error', error: 'No problem loaded', results: [] };
+    }
+  
+    try {
+      const data = await $fetch<SubmissionResult>(`/api/judge/submit`, {
+        baseURL: useRuntimeConfig().public.apiBaseClient,
+        method: 'POST',
+        body: {
+          code,
+          language,
+          problemId: problem.value.id
+        }
+      });
+      return data;
+    } catch (err) {
+      return {
+        status: 'Error',
+        error: 'Error connecting to the execution engine.',
+        results: []
+      };
+    }
+  };
   return { 
       problem, 
       hasProblem, // Export the getter
       isProblemLoading, 
       problemError, 
       fetchProblem, 
-      runCode 
+      runCode,
+      submitCode
   }
 })
 

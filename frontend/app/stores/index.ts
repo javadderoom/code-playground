@@ -23,7 +23,7 @@ export const useRootStore = defineStore('root', () => {
         state,
         fetchProblem: problemStore.fetchProblem,
         runCode: problemStore.runCode,
-        
+        submitCode: problemStore.submitCode
     }
 })
 

@@ -59,19 +59,19 @@ def add(a: int, b: int) -> int:
     await db.insert(testCases).values([
       {
         problemId: problemId,
-        input: JSON.stringify({ args: [1, 2] }),
+        input: JSON.stringify( [1, 2] ),
         expectedOutput: '3',
         isHidden: false
       },
       {
         problemId: problemId,
-        input: JSON.stringify({ args: [10, 20] }),
+        input: JSON.stringify([10, 20] ),
         expectedOutput: '30',
         isHidden: false
       },
       {
         problemId: problemId,
-        input: JSON.stringify({ args: [-5, 5] }),
+        input: JSON.stringify([-5, 5] ),
         expectedOutput: '0',
         isHidden: true // Hidden test case
       }
