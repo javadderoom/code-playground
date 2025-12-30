@@ -6,6 +6,7 @@
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsx watch src/index.ts",
     "db:generate": "npx drizzle-kit generate",
+    "seed": "tsx src/db/seed.ts",
     "test": "vitest",
     "test:run": "vitest run",
     "test:integration": "docker-compose up -d && sleep 5 && npm run test:run -- --reporter=verbose"

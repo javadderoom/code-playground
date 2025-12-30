@@ -2,7 +2,6 @@
 <script setup lang="ts">
  const config = useRuntimeConfig()
 
-
 // Use different API bases for server-side vs client-side
 const baseURL = process.server
   ? config.public.apiBaseSSR

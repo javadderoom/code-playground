@@ -4,7 +4,7 @@ import { ref } from 'vue'
 export const useUserStore = defineStore('user', () => {
   // State
   const name = ref('Ali')
-  const token = ref(null)
+  const token = ref('null')
 
   // Actions
   function login() {

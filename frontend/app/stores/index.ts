@@ -1,16 +1,29 @@
-import { defineStore, storeToRefs } from 'pinia'
+import { defineStore } from 'pinia'
 import { useUserStore } from './user'
+import { useProblemStore } from './problem'
 
 export const useRootStore = defineStore('root', () => {
-    const userStore = useUserStore()
-
+    const problemStore = useProblemStore()
+    const { 
+        problem, 
+        isProblemLoading, 
+        problemError ,
+        hasProblem
+    } = storeToRefs(problemStore)
+ 
     const state = {
-        user: storeToRefs(userStore),
+        problem,
+        isProblemLoading,
+        problemError,
+        hasProblem
     }
-
+ 
+    
     return {
         state,
-        login: userStore.login,
+        fetchProblem: problemStore.fetchProblem,
+        runCode: problemStore.runCode,
+        
     }
 })
 

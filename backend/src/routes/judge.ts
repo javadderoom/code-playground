@@ -6,8 +6,22 @@ import { testCases, submissions, problems } from '../db/schema';
 import { db } from '../db/index.js';
 import { PistonResult } from '../../types/types';
 import { DriverFactory } from '../lib/drivers/factory';
+import { z } from 'zod';
 
 const router = new Hono()
+
+// Validation schemas
+const executeSchema = z.object({
+  code: z.string().min(1, 'Code cannot be empty'),
+  language: z.string(),
+  problemId: z.number().int().positive('Problem ID must be a positive integer')
+})
+
+const submitSchema = z.object({
+  code: z.string().min(1, 'Code cannot be empty'),
+  language: z.string(),
+  problemId: z.number().int().positive('Problem ID must be a positive integer')
+})
 
 // --- Utility Endpoints ---
 
@@ -35,37 +49,142 @@ router.get('/test-judge', async (c) => {
 
 // --- Main Execution Endpoints ---
 
-// 1. Dry Run / Debug (runs code against provided inputs or no inputs)
+// 1. Execute Code (debug against problem test cases)
 router.post('/execute', async (c) => {
   try {
     const body = await c.req.json()
-    const { code, language = 'python', inputs, config } = body
 
-    // Use Driver Factory
-    const driver = DriverFactory.getDriver(language, code, config || {});
-    
-    if (inputs) {
-      driver.setInputs(inputs);
+    // Validate request body
+    const validationResult = executeSchema.safeParse(body)
+    if (!validationResult.success) {
+      return c.json({
+        error: 'Validation failed',
+        details: validationResult.error.issues
+      }, 400)
     }
 
+    const { code, language, problemId } = validationResult.data
+
+    // Fetch problem to get functionName
+    const [problem] = await db.select()
+      .from(problems)
+      .where(eq(problems.id, problemId));
+
+    if (!problem) {
+      return c.json({ error: 'Problem not found' }, 404);
+    }
+
+    // Fetch problem tests
+    const problemTests = await db.select()
+      .from(testCases)
+      .where(eq(testCases.problemId, problemId));
+
+    if (problemTests.length === 0) {
+      return c.json({ error: 'No test cases found for this problem' }, 404);
+    }
+
+    // Prepare inputs for the driver
+    // The driver expects inputs as an array of objects.
+    // We assume test.input is stored as a JSON string representing the arguments.
+    // e.g. '{"args": [1, 2]}' or '[1, 2]'
+    const inputs = problemTests.map(t => {
+      try {
+        const parsed = JSON.parse(t.input);
+        return {
+            id: t.id,
+            // Normalize: if input is { args: [...] }, use it, else assume it's the args array itself
+            args: parsed.args || (Array.isArray(parsed) ? parsed : [parsed])
+        };
+      } catch (e) {
+        return { id: t.id, args: [] }; // Fallback
+      }
+    });
+
+    // Initialize Driver with the correct function name
+    const driver = DriverFactory.getDriver(language, code, {
+      mode: 'function',
+      entryPoint: problem.functionName
+    });
+    driver.setInputs(inputs);
+
+    // Execute
     const payload = driver.generatePayload();
     const pistonResult = await executeCode(payload);
-    const result = driver.parseResult(pistonResult);
+    const executionResult = driver.parseResult(pistonResult);
+
+    // Validate Results against Expected Outputs
+    let allPassed = true;
+    const finalResults = [];
+
+    if (executionResult.status !== 'success') {
+        // Runtime error or compilation error
+        allPassed = false;
+        // Create error results for all test cases
+        for (const test of problemTests) {
+            finalResults.push({
+                id: test.id,
+                passed: false,
+                input: test.isHidden ? '[Hidden]' : test.input,
+                expected: test.isHidden ? '[Hidden]' : test.expectedOutput,
+                actual: '[Error]',
+                error: executionResult.error || 'Execution failed'
+            });
+        }
+    } else {
+        const userOutputs = executionResult.output || [];
+
+        // Map user outputs back to test cases
+        for (const test of problemTests) {
+            const userRes = userOutputs.find((r: any) => r.id === test.id);
+            const actualOutput = userRes ? String(userRes.result) : 'No Result';
+            const expectedOutput = test.expectedOutput.trim();
+
+            // Simple string comparison for now (enhance later for types)
+            const isCorrect = actualOutput === expectedOutput;
+            if (!isCorrect) allPassed = false;
+
+            finalResults.push({
+                id: test.id,
+                passed: isCorrect,
+                input: test.isHidden ? '[Hidden]' : test.input,
+                expected: test.isHidden ? '[Hidden]' : expectedOutput,
+                actual: test.isHidden ? '[Hidden]' : actualOutput,
+                error: userRes?.error
+            });
+        }
+    }
+
+    // Don't save submission - this is just for debugging
+    const status = executionResult.status !== 'success' ? 'Runtime Error' : (allPassed ? 'Accepted' : 'Wrong Answer');
 
     return c.json({
-      execution: result,
-      raw: pistonResult // Optional debug info
-    })
+        status,
+        results: finalResults,
+        error: executionResult.error,
+        logs: executionResult.logs,
+        message: 'Debug execution completed. Use /submit to save your solution.'
+    });
 
   } catch (error: any) {
-    return c.json({ error: error.message }, 500)
+    return c.json({ error: error.message }, 500);
   }
 })
 
 // 2. Submit Solution (runs code against DB test cases)
 router.post('/submit', async (c) => {
   try {
-    const { code, language = 'python', problemId } = await c.req.json();
+    const body = await c.req.json()
+
+    // Validate request body
+    const validationResult = submitSchema.safeParse(body)
+    if (!validationResult.success) {
+      return c.json({
+        error: 'Validation failed',
+        details: validationResult.error.issues
+      }, 400)
+    }
+
+    const { code, language, problemId } = validationResult.data
 
     // Fetch problem to get functionName
     const [problem] = await db.select()

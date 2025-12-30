@@ -1,49 +1,45 @@
 <!-- frontend/pages/problem/[slug].vue -->
 <script setup lang="ts">
-  import { marked } from 'marked'
+  import { marked, use } from 'marked'
   import DOMPurify from 'dompurify'
   import type { SubmissionResult, Problem } from '../../../types/types'
+  import { useRootStore } from '../../stores'
   
   const route = useRoute()
   const config = useRuntimeConfig()
-  
+  const rootStore = useRootStore()
   // State management
   const userCode = ref('# بنویسید...')
   const result = ref<SubmissionResult | null>(null)
   const isLoading = ref(false)
-  
-  // 1. Fetch problem details from Hono
-  const { data: problem, pending, error } = await useFetch<Problem>(`${config.public.apiBaseClient}/api/problems/${route.params.slug}`, {
-    server: false,
-    onResponse({ response }) {
-      if (response.ok && response._data?.starterCode) {
-        userCode.value = response._data.starterCode
+
+  // Computed properties for template access
+  const problem = computed(() => rootStore.state.problem)
+  const isProblemLoading = computed(() => rootStore.state.isProblemLoading)
+
+  // 1. Fetch problem details from store
+  onMounted(async () => {
+   
+    try {
+      await rootStore.fetchProblem(route.params.slug as string)
+      if (rootStore.state.problem.starterCode) {
+        userCode.value = rootStore.state.problem.starterCode
       }
+    } catch (err) {
+      // Error is already handled in the store
+      console.error('Failed to fetch problem:', err)
     }
   })
   
   // 2. Submit code to Backend
   const handleRun = async () => {
-    if (!problem.value) return
-    
+    if (!rootStore.state.problem.id) return
+
     isLoading.value = true
     result.value = null
     try {
-      const data = await $fetch<SubmissionResult>(`${config.public.apiBaseClient}/api/judge/submit`, {
-        method: 'POST',
-        body: {
-          code: userCode.value,
-          language: 'python', // We can make this dynamic later
-          problemId: problem.value.id
-        }
-      })
+      const data = await rootStore.runCode(userCode.value, 'python')
       result.value = data
-    } catch (err) {
-      result.value = { 
-        status: 'Error' as const,
-        error: 'Error connecting to the execution engine.',
-        results: []
-      }
     } finally {
       isLoading.value = false
     }
@@ -61,7 +57,7 @@
   
   // 4. Markdown rendering (with HTML sanitization)
   const renderedDescription = computed(() => {
-    if (!problem.value?.description) return ''
+    if (!problem.value.description) return ''
     const html = marked.parse(problem.value.description) as string
     return DOMPurify.sanitize(html)
   })
@@ -73,12 +69,12 @@
       <header class="h-14 border-b border-gray-800 flex items-center justify-between px-6 bg-[#161b22] shrink-0">
         <div class="flex items-center gap-6">
           <NuxtLink to="/" class="text-gray-400 hover:text-white transition">← بازگشت</NuxtLink>
-          <h1 v-if="problem" class="text-lg font-semibold text-white">{{ problem.title }}</h1>
+          <h1 v-if="problem.id" class="text-lg font-semibold text-white">{{ problem.title }}</h1>
         </div>
         <div class="flex gap-3">
-          <button 
-            @click="handleRun" 
-            :disabled="isLoading || pending"
+            <button
+            @click="handleRun"
+            :disabled="isLoading || rootStore.state.isProblemLoading"
             class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-5 py-1.5 rounded-md font-bold transition-all shadow-lg shadow-emerald-900/20"
           >
             <span v-if="isLoading" class="animate-spin text-lg">↻</span>
@@ -91,13 +87,13 @@
       <div class="flex-1 flex overflow-hidden">
         <!-- Right Pane: Description (Persian) -->
         <section class="w-1/2 overflow-y-auto border-l border-gray-800 p-8 custom-scrollbar">
-          <div v-if="pending" class="animate-pulse space-y-4">
+          <div v-if="isProblemLoading" class="animate-pulse space-y-4">
             <div class="h-4 bg-gray-800 rounded w-1/4"></div>
             <div class="h-8 bg-gray-800 rounded w-3/4"></div>
             <div class="h-32 bg-gray-800 rounded"></div>
           </div>
   
-          <div v-else-if="problem">
+          <div v-else-if="problem.id">
             <span :class="difficultyClass(problem.difficulty)" class="px-2 py-1 rounded text-xs font-medium uppercase tracking-wider">
               {{ problem.difficulty }}
             </span>

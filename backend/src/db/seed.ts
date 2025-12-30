@@ -1,11 +1,15 @@
 import { db } from './index.js';
-import { problems, testCases } from './schema.js';
+import { problems, testCases, submissions } from './schema.js';
 import { eq } from 'drizzle-orm';
 
 async function seed() {
   console.log('🌱 Seeding database...');
 
   try {
+    // Clear submissions table
+    console.log('🗑️  Clearing submissions table...');
+    await db.delete(submissions);
+    console.log('✅ Submissions table cleared');
     const slug = 'sum-of-two-numbers';
     
     const problemData = {
@@ -27,10 +31,7 @@ async function seed() {
       functionName: 'add',
       starterCode: `
 def add(a: int, b: int) -> int:
-    """
-    مجموع دو عدد a و b را محاسبه و برگردانید.
-    """
-    # کد خود را اینجا بنویسید
+   
     return 0
 `.trim(),
     };

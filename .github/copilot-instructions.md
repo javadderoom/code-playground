@@ -37,6 +37,23 @@ This project is a two-part web app: a Nuxt frontend and a Hono + Drizzle TypeScr
   - Postgres is the canonical data store (Drizzle + `pg`).
   - Pinia stores: state management across components; auto-imported composables like `useUserStore()`.
 
+- **Frontend State Management (Pinia)**:
+  - **Store Structure**: Individual stores in `frontend/stores/` contain state + actions; root store (`stores/index.ts`) only contains reactive state via `storeToRefs` + store references for actions.
+  - **Import Pattern**: Vue components ONLY import `useRootStore` - never import individual stores directly.
+  - **Root Store Pattern** (SSR-Safe):
+    ```typescript
+    const state = {} // Empty state to avoid serialization issues
+
+    return {
+      state, // Empty for SSR compatibility
+      getUserStore: () => useUserStore(),      // Lazy store access
+      getProblemStore: () => useProblemStore() // Lazy store access
+    }
+    ```
+  - **Usage**:
+    - State: `rootStore.getProblemStore().problem` (reactive data)
+    - Actions: `rootStore.getProblemStore().fetchProblem(slug)`, `rootStore.getProblemStore().runCode(code)`
+
 - **Concrete examples to reference in edits**:
   - Add an API route: follow `backend/src/routes/problems.ts` pattern and register in `backend/src/app.ts`.
   - Access DB: use `import { db } from './db/index.js'` and `import { problems, testCases } from './db/schema.js'`.
