@@ -15,6 +15,7 @@
     "@nuxt/ui": "^4.3.0",
     "@tailwindcss/vite": "^4.1.18",
     "@unhead/vue": "^2.0.19",
+    "marked": "^17.0.1",
     "monaco-editor": "^0.55.1",
     "nuxt": "^4.2.2",
     "nuxt-monaco-editor": "^1.4.0",

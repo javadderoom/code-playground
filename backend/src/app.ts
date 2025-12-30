@@ -2,7 +2,7 @@
 import { Hono } from 'hono'
 import indexRoutes from './routes/index'
 import problemRoutes from './routes/problems'
-import judgeRoutes from './routes/judge' 
+import judgeRoutes from './routes/judge'
 import { corsMiddleWare } from './middleware/cors.js'
 import dns from 'node:dns'
 

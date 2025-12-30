@@ -7,6 +7,8 @@ export const problems = pgTable('problems', {
   title: text('title').notNull(),
   slug: text('slug').notNull().unique(), // e.g., "two-sum"
   description: text('description').notNull(), // Persian Markdown content
+  functionName: text('function_name').default('solve').notNull(),
+  starterCode: text('starter_code').notNull(),
   difficulty: text('difficulty').$type<'Easy' | 'Medium' | 'Hard'>().notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });

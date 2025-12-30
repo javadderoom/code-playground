@@ -1,5 +1,7 @@
 <!-- frontend/pages/problem/[slug].vue -->
 <script setup>
+  import { marked } from 'marked'
+  
   const route = useRoute()
   const config = useRuntimeConfig()
   
@@ -10,7 +12,12 @@
   
   // 1. Fetch problem details from Hono
   const { data: problem, pending, error } = await useFetch(`${config.public.apiBaseClient}/api/problems/${route.params.slug}`, {
-    server: false
+    server: false,
+    onResponse({ response }) {
+      if (response.ok && response._data?.starterCode) {
+        userCode.value = response._data.starterCode
+      }
+    }
   })
   
   // 2. Submit code to Backend
@@ -18,7 +25,7 @@
     isLoading.value = true
     result.value = null
     try {
-      const data = await $fetch(`${config.public.apiBaseClient}/api/submit`, {
+      const data = await $fetch(`${config.public.apiBaseClient}/api/judge/submit`, {
         method: 'POST',
         body: {
           code: userCode.value,
@@ -28,7 +35,11 @@
       })
       result.value = data
     } catch (err) {
-      result.value = { stderr: 'Error connecting to the execution engine.' }
+      result.value = { 
+        status: 'Error',
+        error: 'Error connecting to the execution engine.',
+        results: []
+      }
     } finally {
       isLoading.value = false
     }
@@ -43,6 +54,12 @@
     }
     return map[level] || 'text-gray-400 bg-gray-400/10'
   }
+  
+  // 4. Markdown rendering
+  const renderedDescription = computed(() => {
+    if (!problem.value?.description) return ''
+    return marked.parse(problem.value.description)
+  })
   </script>
   
   <template>
@@ -80,9 +97,7 @@
               {{ problem.difficulty }}
             </span>
             <h2 class="text-3xl font-bold mt-4 mb-6 text-white">{{ problem.title }}</h2>
-            <div class="prose prose-invert max-w-none text-gray-300 leading-loose text-lg">
-              {{ problem.description }}
-            </div>
+            <div class="prose prose-invert max-w-none text-gray-300 leading-loose text-lg" v-html="renderedDescription"></div>
           </div>
         </section>
   
@@ -110,14 +125,58 @@
           <!-- Result Console -->
           <div class="h-64 bg-[#010409] p-5 font-mono text-sm overflow-y-auto custom-scrollbar">
             <h4 class="text-gray-500 text-xs mb-3 flex justify-between items-center uppercase tracking-widest">
-              <span>Console Result</span>
-              <span v-if="result" :class="result.code === 0 ? 'text-emerald-500' : 'text-rose-500'">
-                Exit Status: {{ result.code }}
+              <span>Test Results</span>
+              <span v-if="result" :class="result.status === 'Accepted' ? 'text-emerald-500' : 'text-rose-500'">
+                {{ result.status }}
               </span>
             </h4>
             <div v-if="result">
-              <pre v-if="result.stdout" class="text-emerald-400 whitespace-pre-wrap">{{ result.stdout }}</pre>
-              <pre v-if="result.stderr" class="text-rose-400 whitespace-pre-wrap">{{ result.stderr }}</pre>
+              <!-- Runtime Error -->
+              <div v-if="result.error" class="mb-4">
+                <div class="text-rose-400 font-semibold mb-2">Runtime Error:</div>
+                <pre class="text-rose-300 whitespace-pre-wrap text-xs">{{ result.error }}</pre>
+              </div>
+              
+              <!-- Logs -->
+              <div v-if="result.logs" class="mb-4">
+                <div class="text-gray-400 font-semibold mb-2">Logs:</div>
+                <pre class="text-gray-300 whitespace-pre-wrap text-xs">{{ result.logs }}</pre>
+              </div>
+              
+              <!-- Test Results -->
+              <div v-if="result.results && result.results.length > 0" class="space-y-3">
+                <div 
+                  v-for="(test, index) in result.results" 
+                  :key="test.id || index"
+                  class="border-l-2 pl-3"
+                  :class="test.passed ? 'border-emerald-500' : 'border-rose-500'"
+                >
+                  <div class="flex items-center gap-2 mb-1">
+                    <span :class="test.passed ? 'text-emerald-400' : 'text-rose-400'">
+                      {{ test.passed ? '✓' : '✗' }}
+                    </span>
+                    <span class="text-gray-400 text-xs">Test Case {{ index + 1 }}</span>
+                  </div>
+                  <div v-if="!test.passed || test.actual" class="text-xs space-y-1 mt-2">
+                    <div v-if="test.input && test.input !== '[Hidden]'">
+                      <span class="text-gray-500">Input:</span>
+                      <span class="text-gray-300 ml-2">{{ test.input }}</span>
+                    </div>
+                    <div v-if="test.expected && test.expected !== '[Hidden]'">
+                      <span class="text-gray-500">Expected:</span>
+                      <span class="text-emerald-300 ml-2">{{ test.expected }}</span>
+                    </div>
+                    <div v-if="test.actual && test.actual !== '[Hidden]'">
+                      <span class="text-gray-500">Got:</span>
+                      <span :class="[test.passed ? 'text-emerald-300' : 'text-rose-300', 'ml-2']">{{ test.actual }}</span>
+                    </div>
+                    <div v-if="test.error" class="text-rose-400 mt-1">
+                      <span class="text-gray-500">Error:</span>
+                      <span class="ml-2">{{ test.error }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div v-else class="text-gray-600 italic mt-2">
               Write your solution and click "Run" to see the output.
