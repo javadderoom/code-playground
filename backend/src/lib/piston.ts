@@ -9,5 +9,5 @@ export async function executeCode(options: PistonExecuteOptions): Promise<Piston
     body: JSON.stringify(options),
   })
 
-  return response.json() as Promise<PistonResult>
+  return response.json() as Promise<any>
 }

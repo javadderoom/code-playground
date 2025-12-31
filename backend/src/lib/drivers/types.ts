@@ -11,7 +11,7 @@ export interface DriverConfig {
 
 export interface ExecutionResult {
     status: 'success' | 'error' | 'timeout';
-    output: any;
+    output: Array<ExecuteOutput>;
     logs: string;
     error?: string;
     metrics?: {
@@ -19,7 +19,13 @@ export interface ExecutionResult {
         memory: number;
     };
 }
-
+export interface ExecuteOutput {
+    id: number,
+    result: any,
+    time: number,
+    status: string,
+    error?: any
+}
 export interface CodeAnalysis {
     imports: string[];
     valid: boolean;

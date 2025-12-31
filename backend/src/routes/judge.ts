@@ -4,7 +4,7 @@ import { executeCode } from '../lib/piston.js'
 import { eq } from 'drizzle-orm';
 import { testCases, submissions, problems } from '../db/schema';
 import { db } from '../db/index.js';
-import { PistonResult } from '../../types/types';
+import { PistonResult, TestResultWithTime } from '../../types/types';
 import { DriverFactory } from '../lib/drivers/factory';
 import { z } from 'zod';
 
@@ -111,46 +111,51 @@ router.post('/execute', async (c) => {
     const payload = driver.generatePayload();
     const pistonResult = await executeCode(payload);
     const executionResult = driver.parseResult(pistonResult);
-
+    console.log('executionResult => ', executionResult)
     // Validate Results against Expected Outputs
     let allPassed = true;
-    const finalResults = [];
-
+    const finalResults: TestResultWithTime[] = [];
+    
     if (executionResult.status !== 'success') {
         // Runtime error or compilation error
         allPassed = false;
         // Create error results for all test cases
-        for (const test of problemTests) {
-            finalResults.push({
-                id: test.id,
-                passed: false,
-                input: test.isHidden ? '[Hidden]' : test.input,
-                expected: test.isHidden ? '[Hidden]' : test.expectedOutput,
-                actual: '[Error]',
-                error: executionResult.error || 'Execution failed'
-            });
-        }
+        for (let i = 0; i < problemTests.length; i++) {
+          const test = problemTests[i];
+          finalResults.push({
+            id: test.id,
+            passed: false,
+            input: test.isHidden ? '[Hidden]' : test.input,
+            expected: test.isHidden ? '[Hidden]' : test.expectedOutput,
+            actual: '[Error]',
+            
+            error: executionResult.error || 'Execution failed'
+        });
+      }
+      
     } else {
         const userOutputs = executionResult.output || [];
 
         // Map user outputs back to test cases
-        for (const test of problemTests) {
-            const userRes = userOutputs.find((r: any) => r.id === test.id);
-            const actualOutput = userRes ? String(userRes.result) : 'No Result';
-            const expectedOutput = test.expectedOutput.trim();
+        for (let i = 0; i < problemTests.length; i++) {
+          const test = problemTests[i];
+          const userRes = userOutputs.find((r: any) => r.id === test.id);
+          const actualOutput = userRes ? String(userRes.result) : 'No Result';
+          const expectedOutput = test.expectedOutput.trim();
 
-            // Simple string comparison for now (enhance later for types)
-            const isCorrect = actualOutput === expectedOutput;
-            if (!isCorrect) allPassed = false;
+          // Simple string comparison for now (enhance later for types)
+          const isCorrect = actualOutput === expectedOutput;
+          if (!isCorrect) allPassed = false;
 
-            finalResults.push({
-                id: test.id,
-                passed: isCorrect,
-                input: test.isHidden ? '[Hidden]' : test.input,
-                expected: test.isHidden ? '[Hidden]' : expectedOutput,
-                actual: test.isHidden ? '[Hidden]' : actualOutput,
-                error: userRes?.error
-            });
+          finalResults.push({
+              id: test.id,
+              passed: isCorrect,
+              input: test.isHidden ? '[Hidden]' : test.input,
+              expected: test.isHidden ? '[Hidden]' : expectedOutput,
+              actual: test.isHidden ? '[Hidden]' : actualOutput,
+              time:executionResult.output[i].time as number,
+              error: userRes?.error
+          });
         }
     }
 
@@ -232,10 +237,10 @@ router.post('/submit', async (c) => {
     const payload = driver.generatePayload();
     const pistonResult = await executeCode(payload);
     const executionResult = driver.parseResult(pistonResult);
-
+    
     // Validate Results against Expected Outputs
     let allPassed = true;
-    const finalResults = [];
+    const finalResults: TestResultWithTime[] = [];
 
     if (executionResult.status !== 'success') {
         // Runtime error or compilation error
@@ -255,35 +260,39 @@ router.post('/submit', async (c) => {
         const userOutputs = executionResult.output || [];
         
         // Map user outputs back to test cases
-        for (const test of problemTests) {
-            const userRes = userOutputs.find((r: any) => r.id === test.id);
-            const actualOutput = userRes ? String(userRes.result) : 'No Result';
-            const expectedOutput = test.expectedOutput.trim();
-            
-            // Simple string comparison for now (enhance later for types)
-            const isCorrect = actualOutput === expectedOutput;
-            if (!isCorrect) allPassed = false;
+        for(let i = 0; i < problemTests.length ; i++){
+          const test = problemTests[i];
+          const userRes = userOutputs.find((r: any) => r.id === test.id);
+          const actualOutput = userRes ? String(userRes.result) : 'No Result';
+          const expectedOutput = test.expectedOutput.trim();
+          
+          // Simple string comparison for now (enhance later for types)
+          const isCorrect = actualOutput === expectedOutput;
+          if (!isCorrect) allPassed = false;
 
-            finalResults.push({
-                id: test.id,
-                passed: isCorrect,
-                input: test.isHidden ? '[Hidden]' : test.input,
-                expected: test.isHidden ? '[Hidden]' : expectedOutput,
-                actual: test.isHidden ? '[Hidden]' : actualOutput,
-                error: userRes?.error
-            });
+          finalResults.push({
+              id: test.id,
+              passed: isCorrect,
+              input: test.isHidden ? '[Hidden]' : test.input,
+              expected: test.isHidden ? '[Hidden]' : expectedOutput,
+              actual: test.isHidden ? '[Hidden]' : actualOutput,
+              time:executionResult.output[i].time as number,
+              error: userRes?.error
+          });
+      }
         }
-    }
+       
 
     // Save Submission
     const status = executionResult.status !== 'success' ? 'Runtime Error' : (allPassed ? 'Accepted' : 'Wrong Answer');
     
-    await db.insert(submissions).values({
-      problemId,
-      code,
-      languageId: 1, // TODO: Map language string to ID
-      status,
-    });
+    // await db.insert(submissions).values({
+    //   problemId,
+    //   code,
+    //   languageId: 1, // TODO: Map language string to ID
+    //   status,
+      
+    // });
 
     return c.json({
         status,

@@ -1,5 +1,12 @@
 // backend/src/db/schema.ts
-import { pgTable, serial, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, integer, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core';
+
+// Difficulty enum for problem difficulty levels
+export const difficultyEnum = pgEnum('difficulty', ['Easy', 'Medium', 'Hard']);
+
+// Export difficulty values for TypeScript usage
+export type Difficulty = 'Easy' | 'Medium' | 'Hard';
+
 
 // Problems table
 export const problems = pgTable('problems', {
@@ -9,7 +16,7 @@ export const problems = pgTable('problems', {
   description: text('description').notNull(), // Persian Markdown content
   functionName: text('function_name').default('solve').notNull(),
   starterCode: text('starter_code').notNull(),
-  difficulty: text('difficulty').$type<'Easy' | 'Medium' | 'Hard'>().notNull(),
+  difficulty: difficultyEnum('difficulty').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -22,12 +29,24 @@ export const testCases = pgTable('test_cases', {
   isHidden: boolean('is_hidden').default(false),
 });
 
-// Submissions (History)
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  username: text('username').notNull().unique(),
+  email: text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  xp: integer('xp').default(0), // For Phase 2 Leaderboards
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Update submissions to include userId
 export const submissions = pgTable('submissions', {
   id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id), // 👈 Link to User
   problemId: integer('problem_id').references(() => problems.id),
   code: text('code').notNull(),
-  languageId: integer('language_id').notNull(), // Judge0 language ID
-  status: text('status'), // e.g., "Accepted", "Wrong Answer"
+  status: text('status').notNull(), // 'Accepted' | 'Wrong Answer'
+  language: text('language').notNull(), 
+  executionTime: integer('execution_time'), // in milliseconds
+  memoryUsed: integer('memory_used'),       // in kilobytes
   createdAt: timestamp('created_at').defaultNow(),
 });

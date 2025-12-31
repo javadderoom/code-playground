@@ -12,9 +12,19 @@ export interface PistonResult {
         stdout: string
         stderr: string
         code: number
+        time: number
         signal?: string | null
         output?: string
     }
     language?: string
     version?: string
 }
+export interface TestResultWithTime {
+    id: number;
+    passed: boolean;
+    input: string;
+    expected: string;
+    actual: string;
+    time?: number ;  
+    error?: string;         
+  } 

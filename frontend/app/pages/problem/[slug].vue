@@ -192,6 +192,10 @@
                       <span class="text-gray-500">Got:</span>
                       <span :class="[test.passed ? 'text-emerald-300' : 'text-rose-300', 'ml-2']">{{ test.actual }}</span>
                     </div>
+                    <div v-if="test.time && test.actual !== '[Hidden]'">
+                      <span class="text-gray-500">time:</span>
+                      <span :class="[test.passed ? 'text-emerald-300' : 'text-rose-300', 'ml-2']">{{ test.time }}</span>
+                    </div>
                     <div v-if="test.error" class="text-rose-400 mt-1">
                       <span class="text-gray-500">Error:</span>
                       <span class="ml-2">{{ test.error }}</span>

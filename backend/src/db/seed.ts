@@ -1,5 +1,5 @@
 import { db } from './index.js';
-import { problems, testCases, submissions } from './schema.js';
+import { problems, testCases, submissions, type Difficulty } from './schema.js';
 import { eq } from 'drizzle-orm';
 
 async function seed() {
@@ -27,7 +27,7 @@ async function seed() {
 **خروجی:**
 \`3\`
       `.trim(),
-      difficulty: 'Easy' as const,
+      difficulty: 'Easy' as Difficulty,
       functionName: 'add',
       starterCode: `
 def add(a: int, b: int) -> int:
@@ -71,8 +71,8 @@ def add(a: int, b: int) -> int:
       },
       {
         problemId: problemId,
-        input: JSON.stringify([-5, 5] ),
-        expectedOutput: '0',
+        input: JSON.stringify([-4, 5] ),
+        expectedOutput: '1',
         isHidden: true // Hidden test case
       }
     ]);

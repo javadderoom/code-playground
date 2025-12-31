@@ -5,6 +5,7 @@ export interface TestResult {
   expected: string
   actual: string
   error?: string
+  time?: number
 }
 
 export interface SubmissionResult {
