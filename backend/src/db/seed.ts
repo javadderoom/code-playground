@@ -1,7 +1,7 @@
 import { db } from './index.js';
-import { problems, testCases, submissions, type Difficulty } from './schema.js';
+import { problems, testCases, submissions, users, type Difficulty } from './schema.js';
 import { eq } from 'drizzle-orm';
-
+import bcrypt from 'bcrypt';
 async function seed() {
   console.log('🌱 Seeding database...');
 
@@ -10,6 +10,33 @@ async function seed() {
     console.log('🗑️  Clearing submissions table...');
     await db.delete(submissions);
     console.log('✅ Submissions table cleared');
+
+     // 3. Create Sample User
+     const hashedPassword = await bcrypt.hash('password123', 10);
+
+     const userData = {
+       username: 'testuser',
+       email: 'test@example.com',
+       passwordHash: hashedPassword,
+       name: 'جواد',
+       xp: 100,
+     };
+ 
+     try {
+       const existingUser = await db.select().from(users).where(eq(users.username, userData.username));
+       
+       if (existingUser.length > 0) {
+         console.log(`🔄 Updating existing user: ${userData.username}`);
+         await db.update(users).set(userData).where(eq(users.username, userData.username));
+       } else {
+         console.log(`👤 Creating new user: ${userData.username}`);
+         await db.insert(users).values(userData).returning();
+       }
+       
+       console.log('✅ User created/updated successfully');
+     } catch (error) {
+       console.error('❌ Error creating user:', error);
+     }
     const slug = 'sum-of-two-numbers';
     
     const problemData = {

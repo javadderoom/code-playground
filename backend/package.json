@@ -14,6 +14,7 @@
   "dependencies": {
     "@hono/node-server": "^1.19.7",
     "@hono/zod-validator": "^0.4.0",
+    "bcrypt": "^6.0.0",
     "bullmq": "^5.12.0",
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.45.1",
@@ -28,6 +29,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20.x.x",
     "@types/pg": "^8.11.6",
     "@types/supertest": "^6.0.3",

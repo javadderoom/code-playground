@@ -237,7 +237,9 @@ router.post('/submit', async (c) => {
     const payload = driver.generatePayload();
     const pistonResult = await executeCode(payload);
     const executionResult = driver.parseResult(pistonResult);
-    
+    const longestExecutionTime = executionResult.output && executionResult.output.length > 0 
+    ? Math.max(...executionResult.output.map(output => output.time))
+    : 0;
     // Validate Results against Expected Outputs
     let allPassed = true;
     const finalResults: TestResultWithTime[] = [];
@@ -286,13 +288,15 @@ router.post('/submit', async (c) => {
     // Save Submission
     const status = executionResult.status !== 'success' ? 'Runtime Error' : (allPassed ? 'Accepted' : 'Wrong Answer');
     
-    // await db.insert(submissions).values({
-    //   problemId,
-    //   code,
-    //   languageId: 1, // TODO: Map language string to ID
-    //   status,
-      
-    // });
+    await db.insert(submissions).values({
+      problemId,
+      code,
+      language: "python", // TODO: Map language string to ID
+      status,
+      userId: 1,
+      executionTime: Math.round(longestExecutionTime * 1000),
+      memoryUsed: 0
+    });
 
     return c.json({
         status,

@@ -1,5 +1,5 @@
 // backend/src/db/schema.ts
-import { pgTable, serial, text, integer, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, integer, timestamp, boolean, pgEnum, decimal } from 'drizzle-orm/pg-core';
 
 // Difficulty enum for problem difficulty levels
 export const difficultyEnum = pgEnum('difficulty', ['Easy', 'Medium', 'Hard']);
@@ -33,6 +33,7 @@ export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   username: text('username').notNull().unique(),
   email: text('email').notNull().unique(),
+  name: text('name'),
   passwordHash: text('password_hash').notNull(),
   xp: integer('xp').default(0), // For Phase 2 Leaderboards
   createdAt: timestamp('created_at').defaultNow(),
@@ -46,7 +47,7 @@ export const submissions = pgTable('submissions', {
   code: text('code').notNull(),
   status: text('status').notNull(), // 'Accepted' | 'Wrong Answer'
   language: text('language').notNull(), 
-  executionTime: integer('execution_time'), // in milliseconds
-  memoryUsed: integer('memory_used'),       // in kilobytes
+  executionTime: decimal('execution_time'), // in milliseconds
+  memoryUsed: decimal('memory_used'),       // in kilobytes
   createdAt: timestamp('created_at').defaultNow(),
 });

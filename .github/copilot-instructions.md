@@ -6,7 +6,7 @@ This project is a two-part web app: a Nuxt frontend and a Hono + Drizzle TypeScr
 - **Big picture**: Backend (backend/) is an HTTP API and judge service. Frontend (frontend/) is a Nuxt 4 app that consumes `/api/*` endpoints. Code execution is proxied to an external Piston API (or a local wrapper) and results are stored in Postgres.
 
 - **Key files**:
-  - `backend/src/app.ts` — main Hono app and route registration (`/api/problems`, `/api/judge`).
+  - `backend/src/app.ts` — main Hono app and route registration (`/api/auth`, `/api/problems`, `/api/judge`).
   - `backend/src/index.ts` — dev/server entry (uses `tsx` for `npm run dev`).
   - `backend/src/routes/judge.ts` — judge endpoints; `/execute` (debug) and `/submit` routes with Zod validation.
   - `backend/src/lib/piston.ts` — wrapper to call Piston (use this for execution logic).
@@ -53,7 +53,7 @@ This project is a two-part web app: a Nuxt frontend and a Hono + Drizzle TypeScr
   - **Example**: `rootStore.state.problem` (reactive problem data), `rootStore.fetchProblem()` (actions).
 
 - **Concrete examples to reference in edits**:
-  - Add an API route: follow `backend/src/routes/problems.ts` pattern and register in `backend/src/app.ts`.
+  - Add an API route: follow `backend/src/routes/auth.ts` or `backend/src/routes/problems.ts` pattern and register in `backend/src/app.ts`.
   - Access DB: use `import { db } from './db/index.js'` and `import { problems, testCases } from './db/schema.js'`.
   - Create Pinia stores: use `frontend/app/stores/` directory; follow the pattern in `user.ts` or `problem.ts`.
   - Add Zod validation: use schemas like `executeSchema` and `submitSchema` in `backend/src/routes/judge.ts`.

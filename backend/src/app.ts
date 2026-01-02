@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import indexRoutes from './routes/index'
 import problemRoutes from './routes/problems'
 import judgeRoutes from './routes/judge'
+import authRoutes from './routes/auth'
 import { corsMiddleWare } from './middleware/cors.js'
 import dns from 'node:dns'
 
@@ -15,6 +16,7 @@ app.use('/api/*', corsMiddleWare)
 
 // Routes
 app.route('/', indexRoutes)
+app.route('/api/auth', authRoutes)
 app.route('/api/problems', problemRoutes)
 app.route('/api/judge', judgeRoutes)
 
