@@ -7,8 +7,37 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ['~/assets/css/main.scss'],
 
+  app: {
+    head: {
+      link: [
+        // Vazirmatn font for Farsi text
+        {
+          rel: 'stylesheet',
+          href: 'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css'
+        },
+        // JetBrains Mono for code
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap'
+        },
+        // Font Awesome icons
+        {
+          rel: 'stylesheet',
+          href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
+        }
+      ]
+    }
+  },
+
   // Optimize Vite for lower memory usage
   vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          silenceDeprecations: ['import'],
+        },
+      },
+    },
     server: {
       watch: {
         usePolling: true, // Required for Windows + Docker
@@ -22,14 +51,6 @@ export default defineNuxtConfig({
         // Restrict file system access to improve performance
         strict: true
       }
-    },
-
-    css: {
-      preprocessorOptions: {
-        scss: {
-          silenceDeprecations: ['import'],
-        },
-      },
     },
 
     // Optimize build performance
@@ -81,6 +102,12 @@ export default defineNuxtConfig({
     '@pinia/nuxt', // State management
     'nuxt-monaco-editor', // Code editor
   ],
+
+  // Alias configuration for shadcn/ui
+  alias: {
+    '~/lib': '~/lib',
+    '~/components/ui': '~/components/ui'
+  },
 
     // Optimize module configurations
     // Note: @nuxt/ui was removed due to client-side import issues with @nuxt/kit

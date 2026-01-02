@@ -5,6 +5,63 @@
 // Import variables
 @import "variables";
 
+@layer base {
+  :root {
+    --background: 15 20% 10%; /* #0F172A */
+    --foreground: 210 40% 98%; /* #F8FAFC */
+    --card: 215 28% 17%; /* #1E293B */
+    --card-foreground: 210 40% 98%; /* #F8FAFC */
+    --popover: 215 28% 17%; /* #1E293B */
+    --popover-foreground: 210 40% 98%; /* #F8FAFC */
+    --primary: 262 83% 58%; /* #8B5CF6 */
+    --primary-foreground: 0 0% 100%; /* white */
+    --secondary: 160 84% 39%; /* #10B981 */
+    --secondary-foreground: 15 20% 10%; /* #0F172A */
+    --muted: 215 28% 17%; /* #1E293B */
+    --muted-foreground: 215 16% 47%; /* #94A3B8 */
+    --accent: 215 28% 17%; /* #1E293B */
+    --accent-foreground: 210 40% 98%; /* #F8FAFC */
+    --destructive: 0 84% 60%; /* red */
+    --destructive-foreground: 0 0% 100%; /* white */
+    --border: 215 20% 27%; /* #334155 */
+    --input: 215 20% 27%; /* #334155 */
+    --ring: 262 83% 58%; /* #8B5CF6 */
+    --radius: 0.75rem; /* 12px for rounded corners */
+  }
+
+  .dark {
+    --background: 15 20% 10%; /* #0F172A */
+    --foreground: 210 40% 98%; /* #F8FAFC */
+    --card: 215 28% 17%; /* #1E293B */
+    --card-foreground: 210 40% 98%; /* #F8FAFC */
+    --popover: 215 28% 17%; /* #1E293B */
+    --popover-foreground: 210 40% 98%; /* #F8FAFC */
+    --primary: 262 83% 58%; /* #8B5CF6 */
+    --primary-foreground: 0 0% 100%; /* white */
+    --secondary: 160 84% 39%; /* #10B981 */
+    --secondary-foreground: 15 20% 10%; /* #0F172A */
+    --muted: 215 28% 17%; /* #1E293B */
+    --muted-foreground: 215 16% 47%; /* #94A3B8 */
+    --accent: 215 28% 17%; /* #1E293B */
+    --accent-foreground: 210 40% 98%; /* #F8FAFC */
+    --destructive: 0 84% 60%; /* red */
+    --destructive-foreground: 0 0% 100%; /* white */
+    --border: 215 20% 27%; /* #334155 */
+    --input: 215 20% 27%; /* #334155 */
+    --ring: 262 83% 58%; /* #8B5CF6 */
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
 // Custom styles can go here
 
 // Mixins
@@ -29,13 +86,21 @@
 
 // Custom component styles
 .btn-primary {
-  @apply bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md;
+  background: #8B5CF6; /* primary color */
+  color: white;
+  @apply font-medium py-2 px-4 rounded-md;
   @apply transition-colors duration-200;
   @include card-shadow;
 }
 
+.btn-primary:hover {
+  background: #7C3AED; /* slightly darker primary */
+}
+
 .btn-secondary {
-  @apply bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md;
+  background: #10B981; /* secondary color */
+  color: #0F172A; /* dark text on green background */
+  @apply font-medium py-2 px-4 rounded-md;
   @apply transition-colors duration-200;
 }
 
@@ -54,13 +119,14 @@ html {
 body {
   font-family: $font-family-primary;
   line-height: 1.6;
-  color: rgb(31 41 55); // gray-800
+  color: #F8FAFC; /* text-main */
+  background-color: #0F172A; /* bg-dark */
 }
 
-// Dark mode support
+// Dark mode support (already using the same colors)
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: rgb(17 24 39); // gray-900
-    color: rgb(243 244 246); // gray-100
+    background-color: #0F172A; /* bg-dark */
+    color: #F8FAFC; /* text-main */
   }
 }

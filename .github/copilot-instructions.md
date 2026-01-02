@@ -14,8 +14,10 @@ This project is a two-part web app: a Nuxt frontend and a Hono + Drizzle TypeScr
   - `backend/src/db/types.ts` — Database type helpers and validation functions.
   - `backend/DATABASE_SCHEMA.md` — Comprehensive documentation of tables, relationships, and data flow.
   - `backend/src/db/seed.ts` — database seeding with environment variable loading.
-  - `frontend/nuxt.config.ts` — Nuxt config with Material Icons CDN integration.
-  - `frontend/app/assets/css/main.scss` — global styles with Material Icons import.
+  - `frontend/nuxt.config.ts` — Nuxt config with Material Icons CDN integration and shadcn/ui aliases.
+  - `frontend/app/assets/css/main.scss` — global styles with Material Icons import and shadcn/ui CSS variables.
+  - `frontend/lib/utils.ts` — shadcn/ui utility functions (cn function for class merging).
+  - `frontend/components/ui/` — shadcn/ui components directory.
   - `frontend/types/types.d.ts` — TypeScript interfaces for API responses and data structures.
   - `frontend/stores/` — Pinia stores for state management.
 
@@ -37,6 +39,7 @@ This project is a two-part web app: a Nuxt frontend and a Hono + Drizzle TypeScr
   - API validation uses Zod schemas for request/response validation.
   - Tests use `vitest`; integration-style tests may require Docker (see `test:integration`).
   - Frontend uses Material Icons for UI elements (imported via Google Fonts CDN).
+  - UI components use shadcn/ui (Vue) with Tailwind CSS for consistent design system.
 
 - **Integration points / external deps to watch**:
   - Piston execution: judge code calls `https://emkc.org/api/v2/piston/execute` (see `/api/judge`). Consider rate limits and timeouts.
@@ -44,6 +47,7 @@ This project is a two-part web app: a Nuxt frontend and a Hono + Drizzle TypeScr
   - Postgres is the canonical data store (Drizzle + `pg`).
   - Pinia stores: state management across components; auto-imported composables like `useUserStore()`.
   - Material Icons: UI icons loaded via Google Fonts CDN in `nuxt.config.ts`.
+  - shadcn/ui: Component library with CSS variables and utility functions in `lib/utils.ts`.
   - Markdown rendering: uses `marked` parser with `DOMPurify` sanitization for problem descriptions.
 
 - **Frontend State Management (Pinia)**:
