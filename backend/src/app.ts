@@ -13,10 +13,10 @@ const app = new Hono()
 
 // Middleware
 app.use('/api/*', corsMiddleWare)
-
+app.use('/auth/*', corsMiddleWare)
 // Routes
 app.route('/', indexRoutes)
-app.route('/api/auth', authRoutes)
+app.route('/auth', authRoutes)
 app.route('/api/problems', problemRoutes)
 app.route('/api/judge', judgeRoutes)
 

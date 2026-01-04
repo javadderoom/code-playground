@@ -92,9 +92,9 @@
             >
           </div>
 
-          <button type="submit" class="btn-start" :disabled="isLoading">
+          <button type="submit" class="btn-start" :disabled="rootStore.state.isUserLoading">
             <i class="fa-solid fa-play"></i>
-            {{ isLoading ? 'در حال ثبت نام...' : 'شروع ماجراجویی' }}
+            {{ rootStore.state.isUserLoading ? 'در حال ثبت نام...' : 'شروع ماجراجویی' }}
           </button>
 
           <!-- SOCIAL -->
@@ -125,8 +125,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+const rootStore = useRootStore()
 const selectedClass = ref('frontend')
-const isLoading = ref(false)
 
 const form = ref({
   username: '',
@@ -154,25 +154,21 @@ const classOptions = [
 ]
 
 const handleRegister = async () => {
-  if (isLoading.value) return
+  if (rootStore.state.isUserLoading) return
 
-  isLoading.value = true
   try {
-    // TODO: Implement registration logic
-    console.log('Registering user:', {
-      ...form.value,
-      class: selectedClass.value
+    await rootStore.register({
+      username: form.value.username,
+      email: form.value.email,
+      password: form.value.password,
     })
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // Registration successful - redirect to login or dashboard
+    await navigateTo('/login')
 
-    // TODO: Redirect to dashboard or show success message
-    console.log('Registration successful!')
   } catch (error) {
+    // Error is handled by the store
     console.error('Registration failed:', error)
-  } finally {
-    isLoading.value = false
   }
 }
 

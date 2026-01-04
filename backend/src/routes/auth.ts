@@ -40,7 +40,7 @@ type LoginRequest = z.infer<typeof loginSchema>;
 auth.post('/register', async (c) => {
   try {
     const body = await c.req.json();
-
+    console.log('/register => body:', body);
     // Validate input
     const validationResult = registerSchema.safeParse(body);
     if (!validationResult.success) {

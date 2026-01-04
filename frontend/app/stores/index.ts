@@ -4,18 +4,28 @@ import { useProblemStore } from './problem'
 
 export const useRootStore = defineStore('root', () => {
     const problemStore = useProblemStore()
+    const userStore = useUserStore()
     const { 
         problem, 
         isProblemLoading, 
         problemError ,
         hasProblem
     } = storeToRefs(problemStore)
- 
+    const {
+        isUserLoading,
+        user,
+        token,
+        userError
+    } = storeToRefs(userStore)
     const state = {
         problem,
         isProblemLoading,
         problemError,
-        hasProblem
+        hasProblem,
+        isUserLoading,
+        user,
+        token,
+        userError
     }
  
     
@@ -23,7 +33,9 @@ export const useRootStore = defineStore('root', () => {
         state,
         fetchProblem: problemStore.fetchProblem,
         runCode: problemStore.runCode,
-        submitCode: problemStore.submitCode
+        submitCode: problemStore.submitCode,
+        register: userStore.register,
+        login: userStore.login
     }
 })
 

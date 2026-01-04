@@ -76,9 +76,9 @@
             <a href="#" class="forgot-link">فراموشی رمز عبور؟</a>
           </div>
 
-          <button type="submit" class="btn-start" :disabled="isLoading">
+          <button type="submit" class="btn-start" :disabled="userStore.isLoading">
             <i class="fa-solid fa-sign-in-alt"></i>
-            {{ isLoading ? 'در حال ورود...' : 'ورود به بازی' }}
+            {{ userStore.isLoading ? 'در حال ورود...' : 'ورود به بازی' }}
           </button>
 
           <!-- SOCIAL -->
@@ -108,8 +108,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useUserStore } from '~/stores/user'
 
-const isLoading = ref(false)
+const userStore = useUserStore()
 const progressPercent = ref(75) // Mock progress for returning player
 
 const form = ref({
@@ -119,22 +120,20 @@ const form = ref({
 })
 
 const handleLogin = async () => {
-  if (isLoading.value) return
+  if (userStore.isLoading) return
 
-  isLoading.value = true
   try {
-    // TODO: Implement login logic
-    console.log('Logging in user:', form.value)
+    await userStore.login({
+      username: form.value.username,
+      password: form.value.password,
+    })
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // Login successful - redirect to dashboard
+    await navigateTo('/')
 
-    // TODO: Redirect to dashboard or show success message
-    console.log('Login successful!')
   } catch (error) {
+    // Error is handled by the store
     console.error('Login failed:', error)
-  } finally {
-    isLoading.value = false
   }
 }
 
