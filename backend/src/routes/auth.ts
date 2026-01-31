@@ -48,6 +48,7 @@ auth.post('/register', async (c) => {
     }
 
     const { username, email, password }: RegisterRequest = validationResult.data;
+    console.log('/register => validation passed for:', username);
 
     // Check if user already exists
     const existingUser = await db.select().from(users)
@@ -68,7 +69,9 @@ auth.post('/register', async (c) => {
     }
 
     // Hash password
+    console.log('/register => user checks passed, hashing password');
     const hashedPassword = await hashPassword(password);
+    console.log('/register => password hashed, inserting user');
 
     // Create user
     const [newUser] = await db.insert(users).values({
@@ -84,6 +87,8 @@ auth.post('/register', async (c) => {
       createdAt: users.createdAt,
     });
 
+    console.log('/register => user inserted:', newUser.id);
+
     // Generate JWT token
     const token = await sign(
       {
@@ -94,6 +99,7 @@ auth.post('/register', async (c) => {
       JWT_SECRET
     );
 
+    console.log('/register => success, returning response');
     return c.json({
       message: 'User created successfully',
       user: newUser,

@@ -39,6 +39,8 @@ const testProblem = {
   title: 'Test Problem',
   slug: 'test-problem',
   description: 'A test problem for integration testing',
+  functionName: 'solve',
+  starterCode: 'def solve():\n    # Write your solution here\n    pass',
   difficulty: 'Easy' as const
 };
 

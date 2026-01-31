@@ -43,7 +43,7 @@ const problems = computed(() => (response.value as any)?.problems || [])
       <!-- Empty State -->
       <div v-else class="text-muted">
         دیتابیس خالی است.
-        <UiButton variant="outline" class="mt-4">Reload</UiButton>
+        <Button variant="outline" class="mt-4">Reload</Button>
       </div>
     </div>
   </template>

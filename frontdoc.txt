@@ -20,25 +20,12 @@ USER node
 EXPOSE 3000
 # Nitro server entry point
 CMD ["node", ".output/server/index.mjs"]
-/////////////////////
- frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    # Volume mounts for hot-reload in development
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.nuxt
-      - /app/.output
-    ports:
-      - "3000:3000"
-    environment:
-      - NUXT_PUBLIC_API_BASE_SSR=http://backend:4000
-      - NUXT_PUBLIC_API_BASE_CLIENT=http://localhost:4000
-      - CHOKIDAR_USEPOLLING=true
-      - NODE_ENV=development
-    networks:
-      - public_net
-    depends_on:
-      - backend
+
+
+////////////////////////
+docker builder prune
+docker container prune
+docker image prune
+
+wsl --shutdown
+optimize-vhd -Path "G:\Path\To\Your\ext4.vhdx" -Mode Full     or    diskpart

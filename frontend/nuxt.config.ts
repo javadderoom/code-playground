@@ -103,11 +103,19 @@ export default defineNuxtConfig({
     'nuxt-monaco-editor', // Code editor
   ],
 
-  // Alias configuration for shadcn/ui
-  alias: {
-    '~/lib': '~/lib',
-    '~/components/ui': '~/components/ui'
-  },
+  // Component auto-imports for shadcn/ui
+  components: [
+    {
+      path: '../components',
+      global: true
+    },
+    {
+      path: '../components/ui',
+      global: true
+    }
+  ],
+
+  // Alias configuration - let Nuxt handle ~ and @ automatically
 
     // Optimize module configurations
     // Note: @nuxt/ui was removed due to client-side import issues with @nuxt/kit

@@ -92,7 +92,7 @@
             >
           </div>
 
-          <button type="submit" class="btn-start" :disabled="rootStore.state.isUserLoading">
+          <button type="submit" class="btn-start" name="register_btn" :disabled="rootStore.state.isUserLoading">
             <i class="fa-solid fa-play"></i>
             {{ rootStore.state.isUserLoading ? 'در حال ثبت نام...' : 'شروع ماجراجویی' }}
           </button>

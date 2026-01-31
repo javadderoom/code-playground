@@ -1,0 +1,22 @@
+ backend:
+    build: 
+      context: ./backend
+    # This maps your local Windows 'backend' folder to the container's '/app'
+    volumes:
+      - ./backend:/app
+      # This line is CRITICAL: It tells Docker NOT to overwrite 
+      # the container's Linux node_modules with your Windows ones.
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - DATABASE_URL=postgres://user:password@db:5432/code_db
+      - RAPIDAPI_KEY=eb0ee2b81dmsh268c3c32d7ace20p16531ejsnc09bf866d863
+      - RAPIDAPI_HOST=judge0-ce.p.rapidapi.com
+      - JUDGE0_URL=https://judge0-ce.p.rapidapi.com
+    ports:
+      - "4000:4000"
+    networks:
+      - public_net
+      - private_net
+    depends_on:
+      - db
