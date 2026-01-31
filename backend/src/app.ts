@@ -5,9 +5,16 @@ import problemRoutes from './routes/problems'
 import judgeRoutes from './routes/judge'
 import authRoutes from './routes/auth'
 import { corsMiddleWare } from './middleware/cors.js'
+import { initializeRedis } from './lib/redis.js'
 import dns from 'node:dns'
 
-dns.setDefaultResultOrder('ipv4first'); 
+dns.setDefaultResultOrder('ipv4first');
+
+// Initialize Redis with persistence
+initializeRedis().catch(err => {
+  console.warn('Redis initialization warning:', err.message);
+  // App can continue without Redis for caching
+});
 
 const app = new Hono()
 

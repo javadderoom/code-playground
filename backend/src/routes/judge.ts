@@ -6,6 +6,8 @@ import { testCases, submissions, problems } from '../db/schema';
 import { db } from '../db/index.js';
 import { PistonResult, TestResultWithTime } from '../../types/types';
 import { DriverFactory } from '../lib/drivers/factory';
+import { authMiddleware, getAuthContext } from '../middleware/auth.js';
+import { processXpAward } from '../services/gamification.js';
 import { z } from 'zod';
 
 const router = new Hono()
@@ -50,8 +52,9 @@ router.get('/test-judge', async (c) => {
 // --- Main Execution Endpoints ---
 
 // 1. Execute Code (debug against problem test cases)
-router.post('/execute', async (c) => {
+router.post('/execute', authMiddleware, async (c) => {
   try {
+    const { userId } = getAuthContext(c)
     const body = await c.req.json()
 
     // Validate request body
@@ -65,19 +68,22 @@ router.post('/execute', async (c) => {
 
     const { code, language, problemId } = validationResult.data
 
-    // Fetch problem to get functionName
-    const [problem] = await db.select()
-      .from(problems)
-      .where(eq(problems.id, problemId));
+    // Batch fetch problem and test cases together (parallel queries)
+    const [problemData, testCasesData] = await Promise.all([
+      db.select()
+        .from(problems)
+        .where(eq(problems.id, problemId)),
+      db.select()
+        .from(testCases)
+        .where(eq(testCases.problemId, problemId))
+    ]);
+
+    const [problem] = problemData;
+    const problemTests = testCasesData;
 
     if (!problem) {
       return c.json({ error: 'Problem not found' }, 404);
     }
-
-    // Fetch problem tests
-    const problemTests = await db.select()
-      .from(testCases)
-      .where(eq(testCases.problemId, problemId));
 
     if (problemTests.length === 0) {
       return c.json({ error: 'No test cases found for this problem' }, 404);
@@ -176,8 +182,9 @@ router.post('/execute', async (c) => {
 })
 
 // 2. Submit Solution (runs code against DB test cases)
-router.post('/submit', async (c) => {
+router.post('/submit', authMiddleware, async (c) => {
   try {
+    const { userId } = getAuthContext(c)
     const body = await c.req.json()
 
     // Validate request body
@@ -191,19 +198,22 @@ router.post('/submit', async (c) => {
 
     const { code, language, problemId } = validationResult.data
 
-    // Fetch problem to get functionName
-    const [problem] = await db.select()
-      .from(problems)
-      .where(eq(problems.id, problemId));
+    // Batch fetch problem and test cases together (parallel queries)
+    const [problemData, testCasesData] = await Promise.all([
+      db.select()
+        .from(problems)
+        .where(eq(problems.id, problemId)),
+      db.select()
+        .from(testCases)
+        .where(eq(testCases.problemId, problemId))
+    ]);
+
+    const [problem] = problemData;
+    const problemTests = testCasesData;
 
     if (!problem) {
       return c.json({ error: 'Problem not found' }, 404);
     }
-
-    // Fetch problem tests
-    const problemTests = await db.select()
-      .from(testCases)
-      .where(eq(testCases.problemId, problemId));
 
     if (problemTests.length === 0) {
       return c.json({ error: 'No test cases found for this problem' }, 404);
@@ -288,21 +298,40 @@ router.post('/submit', async (c) => {
     // Save Submission
     const status = executionResult.status !== 'success' ? 'Runtime Error' : (allPassed ? 'Accepted' : 'Wrong Answer');
     
-    await db.insert(submissions).values({
-      problemId,
-      code,
-      language: "python", // TODO: Map language string to ID
-      status,
-      userId: 1,
-      executionTime: Math.round(longestExecutionTime * 1000),
-      memoryUsed: 0
-    });
+    let xpEarned = 0;
+    let totalXp = 0;
+    
+    try {
+      await db.insert(submissions).values({
+        userId: userId,
+        problemId: problemId,
+        code: code,
+        language: 'python',
+        status: status,
+        executionTime: String(Math.round(longestExecutionTime * 1000)),
+        memoryUsed: '0'
+      } as any);
+      console.log(`Submission saved for user ${userId} on problem ${problemId}`)
+      
+      // Award XP if submission is accepted
+      if (status === 'Accepted') {
+        const xpResult = await processXpAward(userId, problemId, problem.difficulty);
+        xpEarned = xpResult.earned;
+        totalXp = xpResult.total ?? 0;
+        console.log(`XP awarded: ${xpEarned} (total: ${totalXp})`);
+      }
+    } catch (dbError) {
+      console.error('Failed to save submission:', dbError);
+      // Don't fail the whole response if submission save fails
+    }
 
     return c.json({
         status,
         results: finalResults,
         error: executionResult.error,
-        logs: executionResult.logs
+        logs: executionResult.logs,
+        xpEarned,
+        totalXp
     });
 
   } catch (error: any) {

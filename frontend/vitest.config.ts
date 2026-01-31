@@ -8,8 +8,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
-    include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: ['node_modules', '.nuxt', '.output'],
+    include: ['test/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    exclude: ['node_modules', '.nuxt', '.output', 'tests'],
   },
   resolve: {
     alias: {

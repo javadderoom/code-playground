@@ -182,7 +182,7 @@ if __name__ == "__main__":
         // Did not find delimiter - probably a syntax error or runtime crash before driver finished
         return {
           status: 'error',
-          output: null,
+          output: [],
           logs: stdout,
           error: pistonResult.run.stderr || 'Runtime Error (No driver output)',
         };
@@ -202,7 +202,7 @@ if __name__ == "__main__":
       } catch (e) {
         return {
           status: 'error',
-          output: null,
+          output: [],
           logs: logs,
           error: 'Failed to parse driver output'
         };
@@ -211,7 +211,7 @@ if __name__ == "__main__":
       // Script mode
       return {
         status: pistonResult.run.code === 0 ? 'success' : 'error',
-        output: stdout,
+        output: stdout ? [{ id: 0, result: stdout, time: 0, status: pistonResult.run.code === 0 ? 'success' : 'error' }] : [],
         logs: stdout,
         error: pistonResult.run.stderr
       };

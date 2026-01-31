@@ -58,9 +58,19 @@ export const useProblemStore = defineStore('problem', () => {
     }
 
     try {
+      const userStore = useUserStore()
+      const token = userStore.token
+      
+      if (!token) {
+        return { status: 'Error', error: 'Not authenticated', results: [] };
+      }
+
       const data = await $fetch<SubmissionResult>(`/api/judge/execute`, {
         baseURL: useRuntimeConfig().public.apiBaseClient,
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: {
           code,
           language,
@@ -83,9 +93,19 @@ export const useProblemStore = defineStore('problem', () => {
     }
   
     try {
+      const userStore = useUserStore()
+      const token = userStore.token
+      
+      if (!token) {
+        return { status: 'Error', error: 'Not authenticated', results: [] };
+      }
+
       const data = await $fetch<SubmissionResult>(`/api/judge/submit`, {
         baseURL: useRuntimeConfig().public.apiBaseClient,
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: {
           code,
           language,

@@ -41,9 +41,11 @@ auth.post('/register', async (c) => {
   try {
     const body = await c.req.json();
     console.log('/register => body:', body);
+    
     // Validate input
     const validationResult = registerSchema.safeParse(body);
     if (!validationResult.success) {
+      console.error('/register => validation failed:', validationResult.error.issues);
       return c.json({ error: 'Invalid input', details: validationResult.error.issues }, 400);
     }
 
@@ -51,20 +53,24 @@ auth.post('/register', async (c) => {
     console.log('/register => validation passed for:', username);
 
     // Check if user already exists
+    console.log('/register => checking if username exists...');
     const existingUser = await db.select().from(users)
       .where(eq(users.username, username))
       .limit(1);
 
     if (existingUser.length > 0) {
+      console.log('/register => username already exists');
       return c.json({ error: 'Username already exists' }, 409);
     }
 
     // Check if email already exists
+    console.log('/register => checking if email exists...');
     const existingEmail = await db.select().from(users)
       .where(eq(users.email, email))
       .limit(1);
 
     if (existingEmail.length > 0) {
+      console.log('/register => email already exists');
       return c.json({ error: 'Email already exists' }, 409);
     }
 
@@ -87,7 +93,7 @@ auth.post('/register', async (c) => {
       createdAt: users.createdAt,
     });
 
-    console.log('/register => user inserted:', newUser.id);
+    console.log('/register => user inserted successfully:', newUser);
 
     // Generate JWT token
     const token = await sign(
@@ -99,7 +105,7 @@ auth.post('/register', async (c) => {
       JWT_SECRET
     );
 
-    console.log('/register => success, returning response');
+    console.log('/register => token generated, returning response');
     return c.json({
       message: 'User created successfully',
       user: newUser,
@@ -107,8 +113,9 @@ auth.post('/register', async (c) => {
     }, 201);
 
   } catch (error) {
-    console.error('Registration error:', error);
-    return c.json({ error: 'Internal server error' }, 500);
+    console.error('Registration error:', error instanceof Error ? error.message : error);
+    console.error('Registration error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    return c.json({ error: 'Internal server error', details: error instanceof Error ? error.message : String(error) }, 500);
   }
 });
 

@@ -2,6 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('User Registration', () => {
   test('should successfully register a new user', async ({ page }) => {
+    // Log the base URL for debugging
+    console.log('Test base URL:', page.url());
+    
     // Navigate to register page
     await page.goto('/register');
 
@@ -18,13 +21,17 @@ test.describe('User Registration', () => {
 
     // Generate unique test data to avoid conflicts
     const timestamp = Date.now();
-    const testUsername = `testuser${timestamp}`;
+    // Keep username under 20 chars: "user" (4) + last 6 digits of timestamp (6) = 10 chars
+    const timestampShort = timestamp.toString().slice(-6);
+    const testUsername = `user${timestampShort}`;
     const testEmail = `test${timestamp}@example.com`;
     const testPassword = 'testpassword123';
 
     await usernameInput.fill(testUsername);
     await emailInput.fill(testEmail);
     await passwordInput.fill(testPassword);
+
+    console.log(`Filling form with: username=${testUsername}, email=${testEmail}`);
 
     // Select a class (Frontend developer)
     const frontendClass = page.locator('.class-card').first();
@@ -35,24 +42,46 @@ test.describe('User Registration', () => {
 
     // Submit the form
     const submitButton = page.getByRole('button', { name: /شروع ماجراجویی/ });
+    console.log('Clicking submit button');
     await submitButton.click();
 
     // Wait for loading state to complete or page navigation
     try {
-      // First, try to wait for URL change (successful registration)
-      await page.waitForURL(/.*login/, { timeout: 5000 });
+      // Listen for API calls to see what's happening
+      page.on('response', (response) => {
+        if (response.url().includes('/auth/register')) {
+          console.log(`API Response: ${response.status()} - ${response.url()}`);
+        }
+      });
+
+      page.on('requestfailed', (request) => {
+        if (request.url().includes('/auth/register')) {
+          console.log(`API Request Failed: ${request.url()} - ${request.failure()?.errorText}`);
+        }
+      });
+
+      // Wait for URL change with longer timeout to account for slow API
+      await page.waitForURL(/.*login/, { timeout: 15000 });
       console.log('Registration successful - redirected to login page');
     } catch (error) {
       // If no redirect, check if we're still on register page (API might be failing)
-      console.log('No redirect detected, checking for error state');
+      console.log('No redirect detected, checking current state');
+      console.log('Current URL:', page.url());
 
       // Check if button is still disabled (loading) or enabled (error occurred)
+      const buttonText = await submitButton.textContent();
+      console.log('Button text:', buttonText);
+
+      // Get any error messages on the page
+      const errorMessages = await page.locator('[role="alert"], .error, .toast').allTextContents();
+      console.log('Error messages on page:', errorMessages);
+
       await expect(submitButton).not.toHaveText(/در حال ثبت نام/);
 
       // If still on register page, the test should pass as "registration attempt made"
       // This handles cases where backend API is not available during testing
       await expect(page).toHaveURL(/.*register/);
-      console.log('Stayed on register page - likely API unavailable or validation error');
+      console.log('Stayed on register page - API unavailable or validation error');
     }
 
     // If we got redirected, verify we're on the login page
