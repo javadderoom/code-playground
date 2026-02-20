@@ -76,9 +76,9 @@
             <a href="#" class="forgot-link">فراموشی رمز عبور؟</a>
           </div>
 
-          <button type="submit" class="btn-start" :disabled="userStore.isLoading">
+          <button type="submit" class="btn-start" :disabled="rootStore.state.isUserLoading">
             <i class="fa-solid fa-sign-in-alt"></i>
-            {{ userStore.isLoading ? 'در حال ورود...' : 'ورود به بازی' }}
+            {{ rootStore.state.isUserLoading ? 'در حال ورود...' : 'ورود به بازی' }}
           </button>
 
           <!-- SOCIAL -->
@@ -107,10 +107,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useUserStore } from '~/stores/user'
+import { ref } from 'vue'
+import { useRootStore } from '~/stores'
 
-const userStore = useUserStore()
+const rootStore = useRootStore()
 const progressPercent = ref(75) // Mock progress for returning player
 
 const form = ref({
@@ -120,10 +120,10 @@ const form = ref({
 })
 
 const handleLogin = async () => {
-  if (userStore.isLoading) return
+  if (rootStore.state.isUserLoading) return
 
   try {
-    await userStore.login({
+    await rootStore.login({
       username: form.value.username,
       password: form.value.password,
     })

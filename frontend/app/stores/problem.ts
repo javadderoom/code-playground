@@ -51,16 +51,13 @@ export const useProblemStore = defineStore('problem', () => {
     }
   };
 
-  const runCode = async (code: string, language: string): Promise<SubmissionResult> => {
+  const runCode = async (code: string, language: string, token?: string | null): Promise<SubmissionResult> => {
     // Guard using our ID check
     if (problem.value.id === 0) {
        return { status: 'Error', error: 'No problem loaded', results: [] };
     }
 
     try {
-      const userStore = useUserStore()
-      const token = userStore.token
-      
       if (!token) {
         return { status: 'Error', error: 'Not authenticated', results: [] };
       }
@@ -86,16 +83,13 @@ export const useProblemStore = defineStore('problem', () => {
       };
     }
   };
-  const submitCode = async (code: string, language: string): Promise<SubmissionResult> => {
+  const submitCode = async (code: string, language: string, token?: string | null): Promise<SubmissionResult> => {
     // Guard using our ID check
     if (problem.value.id === 0) {
        return { status: 'Error', error: 'No problem loaded', results: [] };
     }
   
     try {
-      const userStore = useUserStore()
-      const token = userStore.token
-      
       if (!token) {
         return { status: 'Error', error: 'Not authenticated', results: [] };
       }

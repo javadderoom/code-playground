@@ -29,11 +29,19 @@ export const useRootStore = defineStore('root', () => {
     }
  
     
+    const runCode = (code: string, language: string) => {
+        return problemStore.runCode(code, language, token.value)
+    }
+
+    const submitCode = (code: string, language: string) => {
+        return problemStore.submitCode(code, language, token.value)
+    }
+
     return {
         state,
         fetchProblem: problemStore.fetchProblem,
-        runCode: problemStore.runCode,
-        submitCode: problemStore.submitCode,
+        runCode,
+        submitCode,
         register: userStore.register,
         login: userStore.login
     }

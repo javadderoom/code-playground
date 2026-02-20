@@ -19,7 +19,10 @@
 
   // 1. Fetch problem details from store
   onMounted(async () => {
-   
+    if(rootStore.state.token == ''){
+      console.warn('No auth token found. Problem details may not load correctly.')
+      return
+    }
     try {
       await rootStore.fetchProblem(route.params.slug as string)
       if (rootStore.state.problem.starterCode) {
