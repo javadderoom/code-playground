@@ -11,6 +11,7 @@ import { processXpAward } from '../services/gamification.js';
 import { z } from 'zod';
 
 const router = new Hono()
+const PYTHON_RUNTIME_VERSION = process.env.PISTON_PYTHON_VERSION || '3.12.0'
 
 // Validation schemas
 const executeSchema = z.object({
@@ -31,7 +32,7 @@ router.get('/test-judge', async (c) => {
   try {
     const result = await executeCode({
       language: 'python',
-      version: '3.10.0',
+      version: PYTHON_RUNTIME_VERSION,
       files: [{
         name: 'main.py',
         content: "print('Hello from the Piston Engine!')"

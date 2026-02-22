@@ -9,6 +9,7 @@ const EMPTY_PROBLEM: Problem = {
   title: '',
   slug: '',
   description: '',
+  examples: [],
   functionName: '',
   starterCode: '',
   difficulty: 'Easy',

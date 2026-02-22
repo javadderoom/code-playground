@@ -52,11 +52,23 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         // Custom colors from register page
-        "bg-dark": "#0F172A",
-        "card-bg": "#1E293B",
-        "text-main": "#F8FAFC",
-        "text-muted": "#94A3B8",
-        "border-gray": "#334155",
+        "bg-dark": "var(--bg-primary)",
+        "card-bg": "var(--bg-secondary)",
+        "text-main": "var(--text-primary)",
+        "text-muted": "var(--text-secondary)",
+        "border-gray": "hsl(var(--border))",
+
+        // Project theme palette tokens
+        "bg-primary": "var(--bg-primary)",
+        "bg-secondary": "var(--bg-secondary)",
+        "bg-ide": "var(--bg-ide)",
+        "accent-purple": "var(--accent-purple)",
+        "accent-cyan": "var(--accent-cyan)",
+        "success-neon": "var(--success)",
+        "error-vivid": "var(--error)",
+        xp: "var(--xp)",
+        coins: "var(--coins)",
+        streak: "var(--streak)",
       },
       borderRadius: {
         lg: "var(--radius)",

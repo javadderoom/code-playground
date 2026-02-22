@@ -29,17 +29,25 @@ export const useRootStore = defineStore('root', () => {
     }
  
     
+    const ensureAuth = () => {
+        if (import.meta.client && !token.value) {
+            userStore.initializeAuth()
+        }
+        return token.value
+    }
+
     const runCode = (code: string, language: string) => {
-        return problemStore.runCode(code, language, token.value)
+        return problemStore.runCode(code, language, ensureAuth())
     }
 
     const submitCode = (code: string, language: string) => {
-        return problemStore.submitCode(code, language, token.value)
+        return problemStore.submitCode(code, language, ensureAuth())
     }
 
     return {
         state,
         fetchProblem: problemStore.fetchProblem,
+        ensureAuth,
         runCode,
         submitCode,
         register: userStore.register,

@@ -20,6 +20,10 @@ export interface Problem {
   title: string
   slug: string
   description: string
+  examples: Array<{
+    input: string
+    output: string
+  }>
   functionName: string
   starterCode: string
   difficulty: 'Easy' | 'Medium' | 'Hard'

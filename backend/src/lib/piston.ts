@@ -1,6 +1,20 @@
 import { PistonExecuteOptions, PistonResult } from '../../types/types.js'
 
-const PISTON_URL = 'https://emkc.org/api/v2/piston/execute'
+const PISTON_URL = process.env.PISTON_URL as string
+
+function isPistonResult(data: unknown): data is PistonResult {
+  if (!data || typeof data !== 'object') return false
+
+  const maybeRun = (data as { run?: unknown }).run
+  if (!maybeRun || typeof maybeRun !== 'object') return false
+
+  const run = maybeRun as Record<string, unknown>
+  return (
+    typeof run.stdout === 'string' &&
+    typeof run.stderr === 'string' &&
+    typeof run.code === 'number'
+  )
+}
 
 export async function executeCode(options: PistonExecuteOptions): Promise<PistonResult> {
   const response = await fetch(PISTON_URL, {
@@ -9,5 +23,15 @@ export async function executeCode(options: PistonExecuteOptions): Promise<Piston
     body: JSON.stringify(options),
   })
 
-  return response.json() as Promise<any>
+  const data: unknown = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(`Piston HTTP ${response.status}: ${JSON.stringify(data)}`)
+  }
+
+  if (!isPistonResult(data)) {
+    throw new Error(`Invalid Piston response: ${JSON.stringify(data)}`)
+  }
+
+  return data
 }

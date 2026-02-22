@@ -106,11 +106,11 @@ export default defineNuxtConfig({
   // Component auto-imports for shadcn/ui
   components: [
     {
-      path: '../components',
+      path: './components',
       global: true
     },
     {
-      path: '../components/ui',
+      path: './components/ui',
       global: true
     }
   ],

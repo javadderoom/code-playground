@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ویرایشگر کد تبلت | CodeQuest</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+        :root {
+            --primary: #a855f7;
+            --secondary: #22d3ee;
+            --bg-midnight: #0b0e14;
+            --panel-bg: #111827;
+            --editor-bg: #1e1e1e;
+            --terminal-bg: #0d0d0d;
+            --neon-purple: #c084fc;
+            --neon-cyan: #67e8f9;
+            --neon-gold: #fbbf24;
+        }
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-midnight);
+        }
+        .code-editor-bg {
+            background: var(--editor-bg);
+        }
+        .terminal-font {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
+        .neon-glow-cyan {
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+        }
+        .neon-glow-purple {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        .neon-text-purple {
+            text-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+        }
+        .neon-text-gold {
+            text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0e14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 10px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#a855f7",
+                        secondary: "#22d3ee",
+                        midnight: "#0b0e14",
+                        panel: "#111827",
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="dark bg-midnight text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+<header class="h-16 border-b border-slate-800 bg-midnight/90 backdrop-blur-md sticky top-0 z-50 px-4 md:px-6 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-2xl drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">terminal</span>
+<span class="font-bold text-lg hidden sm:inline tracking-tight">CodeQuest</span>
+</div>
+<div class="h-6 w-[1px] bg-slate-800 mx-1 hidden sm:block"></div>
+<div class="flex items-center gap-4 text-xs md:text-sm font-medium">
+<div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+<span class="bg-primary/20 text-purple-300 px-2 py-0.5 rounded text-[10px] w-fit border border-primary/30 neon-text-purple">سطح ۱۲</span>
+<div class="w-20 md:w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%] shadow-[0_0_10px_rgba(168,85,247,0.8)]"></div>
+</div>
+</div>
+<div class="flex items-center gap-1 text-amber-400">
+<span class="material-symbols-outlined text-lg filled drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]">payments</span>
+<span class="font-bold neon-text-gold">۱,۵۰۰</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center p-2 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-slate-400 hover:text-white">
+<span class="material-symbols-outlined text-xl">map</span>
+</button>
+<div class="w-9 h-9 rounded-full bg-slate-800 overflow-hidden border-2 border-primary neon-glow-purple">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGF-DcrFy5qhl_kic9DpT-2q2YRD2Bl7z7G6C3-bbKdlfp0Df4OBP_FzlAj9524554gfLAMSbzFhHPqNqIFEtIbGouzVuM1ANrgbWsl2NRwCAzjdFEMEUp-y58X-Qhx8TgUa6buD9QAYjBTYxzcNhwommc8cR4k7fRm1GmaTLfQBF-0CxjwjwpV1i9CnZwvOz7PFsjkUZy1V1syr9YxFHgD9loVqWNQbh5MtBO2AmyBRLYS19SZa_nExoQ6qCsIRKqRgqrdMeO07eP"/>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-midnight">
+<aside class="w-full lg:w-[380px] xl:w-[420px] p-4 md:p-6 overflow-y-auto border-l border-slate-800 bg-panel flex flex-col gap-6 order-2 lg:order-1">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">سطح: ساده</span>
+<span class="text-xs text-slate-500 font-mono">ID: #1024</span>
+</div>
+<h1 class="text-xl md:text-2xl font-bold text-white">جمع دو عدد</h1>
+<p class="text-slate-300 leading-relaxed text-sm md:text-base">
+                یک تابع بنویسید که دو عدد صحیح <code class="bg-slate-800/80 px-1.5 py-0.5 rounded font-mono text-secondary">a</code> و <code class="bg-slate-800/80 px-1.5 py-0.5 rounded font-mono text-secondary">b</code> را دریافت کرده و مجموع آن‌ها را برگرداند.
+            </p>
+</div>
+<div class="space-y-4">
+<h3 class="font-bold flex items-center gap-2 text-sm text-slate-200">
+<span class="material-symbols-outlined text-secondary text-xl">lightbulb</span>
+                مثال‌های آموزشی
+            </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-3">
+<div class="bg-black/30 p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-2" dir="ltr">
+<div class="flex justify-between"><span class="text-slate-500">Input:</span> <span class="text-slate-300">a=1, b=2</span></div>
+<div class="flex justify-between border-t border-slate-800 pt-2"><span class="text-slate-500">Output:</span> <span class="text-emerald-400 font-bold">3</span></div>
+</div>
+<div class="bg-black/30 p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-2" dir="ltr">
+<div class="flex justify-between"><span class="text-slate-500">Input:</span> <span class="text-slate-300">a=10, b=20</span></div>
+<div class="flex justify-between border-t border-slate-800 pt-2"><span class="text-slate-500">Output:</span> <span class="text-emerald-400 font-bold">30</span></div>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-slate-800">
+<div class="bg-gradient-to-br from-primary/20 via-slate-900/50 to-secondary/20 p-5 rounded-2xl border border-white/5 relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-white">military_tech</span>
+</div>
+<h4 class="text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-[0.2em]">پاداش موفقیت</h4>
+<div class="flex items-center gap-6">
+<div class="flex flex-col">
+<span class="text-xs text-slate-500">امتیاز تجربه</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-xl filled drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]">grade</span>
+<span class="font-bold text-white neon-text-purple">50+ XP</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="text-xs text-slate-500">سکه طلا</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-amber-400 text-xl filled drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]">database</span>
+<span class="font-bold text-white neon-text-gold">10+</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<section class="flex-1 flex flex-col bg-midnight order-1 lg:order-2">
+<div class="p-4 pb-0 flex-1 flex flex-col min-h-[450px]">
+<div class="flex-1 rounded-2xl overflow-hidden flex flex-col shadow-2xl code-editor-bg border border-slate-800">
+<div class="flex items-center justify-between px-4 py-3 bg-[#1a1a1a] border-b border-white/5" dir="ltr">
+<div class="flex items-center gap-3">
+<div class="flex gap-1.5">
+<div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+<div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+<div class="w-3 h-3 rounded-full bg-green-500/70"></div>
+</div>
+<div class="flex items-center gap-2 bg-[#1e1e1e] px-4 py-1.5 rounded-t-lg border-t-2 border-secondary ml-2">
+<span class="material-symbols-outlined text-sm text-yellow-500">code</span>
+<span class="text-xs font-mono text-slate-300">solution.py</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<select class="bg-black/40 border border-white/10 text-[10px] text-slate-400 focus:ring-0 cursor-pointer rounded-md py-1 pr-8 pl-2 font-mono appearance-none">
+<option>Python 3.11</option>
+<option>Node.js 18</option>
+</select>
+</div>
+</div>
+<div class="flex-1 flex font-mono text-sm md:text-base p-4 overflow-auto" dir="ltr">
+<div class="w-10 text-slate-600 text-right select-none pr-4 border-r border-white/5 flex flex-col shrink-0">
+<span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span>
+</div>
+<div class="flex-1 px-4 leading-relaxed overflow-x-auto">
+<div class="text-slate-300 whitespace-nowrap"><span class="text-purple-400">def</span> <span class="text-blue-400">solve</span>(a: <span class="text-cyan-400">int</span>, b: <span class="text-cyan-400">int</span>) -&gt; <span class="text-cyan-400">int</span>:</div>
+<div class="pl-4 text-slate-500 italic whitespace-nowrap">    # Your logic goes here</div>
+<div class="pl-4 flex items-center whitespace-nowrap">
+<span class="text-purple-400">return</span>
+<span class="ml-2 w-2 h-5 bg-secondary/60 animate-pulse"></span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-[#161616] flex items-center justify-between border-t border-white/5">
+<button class="text-slate-500 hover:text-white flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-lg">settings</span>
+</button>
+<div class="flex gap-2">
+<button class="px-4 md:px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition-all flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-lg">play_arrow</span>
+<span class="hidden sm:inline">اجرای کد</span>
+</button>
+<button class="px-6 md:px-8 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg transition-all flex items-center gap-2 neon-glow-purple text-sm">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+<span>ثبت نهایی</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 pt-4 lg:h-[320px]">
+<div class="h-full bg-black rounded-xl border border-slate-700 flex flex-col overflow-hidden shadow-2xl terminal-font" dir="ltr">
+<div class="px-4 py-2 bg-[#1a1a1a] border-b border-white/10 flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+<div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+<div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+<span class="ml-4 text-[11px] text-slate-400 font-bold tracking-widest uppercase">Bash — Test Results</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 mr-2">
+<span class="text-[10px] text-red-400 font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                1 FAIL
+                            </span>
+</div>
+<span class="material-symbols-outlined text-slate-500 text-sm cursor-pointer hover:text-slate-300">remove</span>
+<span class="material-symbols-outlined text-slate-500 text-sm cursor-pointer hover:text-slate-300">close</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-5 text-sm leading-relaxed bg-[#0d0d0d]">
+<div class="space-y-6">
+<div class="relative">
+<div class="flex items-center gap-3 mb-3">
+<span class="text-green-500">➜</span>
+<span class="text-white font-bold">test_case_01</span>
+<span class="text-red-500 font-bold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/30 text-xs">FAILED</span>
+<span class="text-slate-600 text-[10px] ml-auto">time: 24ms</span>
+</div>
+<div class="ml-4 space-y-1.5 border-l border-slate-800 pl-4 py-1">
+<div class="flex">
+<span class="w-24 text-slate-500 shrink-0 italic">input:</span>
+<span class="text-blue-300 font-bold">[1, 2]</span>
+</div>
+<div class="flex">
+<span class="w-24 text-slate-500 shrink-0 italic">expected:</span>
+<span class="text-green-400 font-bold">3</span>
+</div>
+<div class="flex">
+<span class="w-24 text-slate-500 shrink-0 italic">actual:</span>
+<span class="text-red-400 font-bold underline decoration-red-500/30 decoration-wavy">None</span>
+</div>
+<div class="mt-4 p-3 bg-red-950/20 border border-red-900/40 text-red-300 rounded-md">
+<div class="flex items-start gap-2">
+<span class="text-red-500">!</span>
+<span class="font-bold">AssertionError:</span>
+</div>
+<div class="mt-1 text-red-400/80 pl-4">
+                                        Expected output '3' (type: int) but received 'None' (type: NoneType)
+                                    </div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 opacity-60">
+<span class="text-green-500">➜</span>
+<span class="text-slate-400 font-bold">test_case_02</span>
+<span class="text-slate-600 font-bold bg-slate-800/50 px-2 py-0.5 rounded border border-white/5 text-xs uppercase">Pending</span>
+</div>
+<div class="flex items-center gap-2 pt-2">
+<span class="text-green-500 font-bold">guest@codequest</span><span class="text-slate-400">:</span><span class="text-blue-400 font-bold">~</span><span class="text-slate-400">$</span>
+<span class="w-2 h-5 bg-slate-500 animate-pulse"></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<button class="fixed bottom-4 left-4 w-12 h-12 rounded-full bg-secondary text-slate-900 flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-transform neon-glow-cyan z-50">
+<span class="material-symbols-outlined filled">help</span>
+</button>
+
+</body></html>

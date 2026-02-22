@@ -1,9 +1,5 @@
 # // docker-compose.yml
 services:
- 
-# // backend section of docker-compose.yml
- 
-
   db:
     image: postgres:15-alpine
     pull_policy: if_not_present
@@ -18,6 +14,18 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  piston:
+    image: ghcr.io/engineer-man/piston:latest
+    pull_policy: if_not_present
+    privileged: true
+    ports:
+      - "2000:2000"
+    networks:
+      - private_net
+    volumes:
+      - piston_data:/piston
+    restart: unless-stopped
+
 
 
  
@@ -27,3 +35,4 @@ networks:
 
 volumes:
   pgdata:
+  piston_data:

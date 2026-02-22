@@ -1,11 +1,16 @@
 // backend/src/db/schema.ts
-import { pgTable, serial, text, integer, timestamp, boolean, pgEnum, decimal } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, integer, timestamp, boolean, pgEnum, decimal, jsonb } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 // Difficulty enum for problem difficulty levels
 export const difficultyEnum = pgEnum('difficulty', ['Easy', 'Medium', 'Hard']);
 
 // Export difficulty values for TypeScript usage
 export type Difficulty = 'Easy' | 'Medium' | 'Hard';
+export type ProblemExample = {
+  input: string
+  output: string
+}
 
 
 // Problems table
@@ -16,6 +21,7 @@ export const problems = pgTable('problems', {
   description: text('description').notNull(), // Persian Markdown content
   functionName: text('function_name').default('solve').notNull(),
   starterCode: text('starter_code').notNull(),
+  examples: jsonb('examples').$type<ProblemExample[]>().notNull().default(sql`'[]'::jsonb`),
   difficulty: difficultyEnum('difficulty').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });

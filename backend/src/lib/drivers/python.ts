@@ -2,6 +2,8 @@
 import { PistonExecuteOptions, PistonResult } from '../../../types/types.js';
 import { IDriver, DriverConfig, ExecutionResult, CodeAnalysis } from './types.js';
 
+const DEFAULT_PYTHON_VERSION = process.env.PISTON_PYTHON_VERSION || '3.12.0';
+
 export class PythonDriver implements IDriver {
   private code: string;
   private inputs: any[] = [];
@@ -111,7 +113,7 @@ if __name__ == "__main__":
   constructor(code: string, config: DriverConfig = { mode: 'script' }) {
     this.code = code;
     this.config = {
-      version: '3.10.0',
+      version: DEFAULT_PYTHON_VERSION,
       className: 'Solution',
       ...config
     };
@@ -166,7 +168,7 @@ if __name__ == "__main__":
 
     return {
       language: 'python',
-      version: this.config.version || '3.10.0',
+      version: this.config.version || DEFAULT_PYTHON_VERSION,
       files: files,
     };
   }

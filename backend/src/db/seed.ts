@@ -1,5 +1,5 @@
 import { db } from './index.js';
-import { problems, testCases, submissions, users, type Difficulty } from './schema.js';
+import { problems, testCases, submissions, users, type Difficulty, type ProblemExample } from './schema.js';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 async function seed() {
@@ -38,6 +38,10 @@ async function seed() {
        console.error('❌ Error creating user:', error);
      }
     const slug = 'sum-of-two-numbers';
+    const examples: ProblemExample[] = [
+      { input: 'a = 1, b = 2', output: '3' },
+      { input: 'a = 10, b = 20', output: '30' }
+    ]
     
     const problemData = {
       title: 'Sum of Two Numbers',
@@ -61,6 +65,7 @@ def add(a: int, b: int) -> int:
    
     return 0
 `.trim(),
+      examples,
     };
 
     // Check if problem exists

@@ -1,21 +1,93 @@
-// CSS Custom Properties (CSS Variables)
-:root {
-  --color-primary: #3b82f6;
-  --color-secondary: #64748b;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
+// Theme tokens
+:root,
+.dark {
+  // Midnight (dark mode)
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-ide: #010409;
+  --accent-purple: #9333ea;
+  --accent-cyan: #06b6d4;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --success: #22c55e;
+  --error: #ef4444;
 
-  --font-family-primary: 'Inter', system-ui, sans-serif;
+  // Shared gamification accents
+  --xp: #a855f7;
+  --coins: #facc15;
+  --streak: #fb923c;
+
+  // shadcn/tailwind semantic tokens (HSL triplets)
+  --background: 216 28% 7%;
+  --foreground: 210 20% 98%;
+  --card: 215 21% 11%;
+  --card-foreground: 210 20% 98%;
+  --popover: 215 21% 11%;
+  --popover-foreground: 210 20% 98%;
+  --primary: 271 81% 56%;
+  --primary-foreground: 210 20% 98%;
+  --secondary: 189 94% 43%;
+  --secondary-foreground: 216 28% 7%;
+  --muted: 215 21% 11%;
+  --muted-foreground: 218 11% 65%;
+  --accent: 215 21% 11%;
+  --accent-foreground: 210 20% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 215 21% 18%;
+  --input: 215 21% 18%;
+  --ring: 271 81% 56%;
+  --radius: 0.75rem;
+
+  --font-family-primary: 'Vazirmatn', system-ui, sans-serif;
   --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
+.light {
+  // Clean Studio (light mode)
+  --bg-primary: #f9fafb;
+  --bg-secondary: #ffffff;
+  --bg-ide: #010409;
+  --accent-purple: #7e22ce;
+  --accent-cyan: #0891b2;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --success: #15803d;
+  --error: #b91c1c;
+
+  // Shared gamification accents
+  --xp: #a855f7;
+  --coins: #facc15;
+  --streak: #fb923c;
+
+  // shadcn/tailwind semantic tokens (HSL triplets)
+  --background: 210 20% 98%;
+  --foreground: 221 39% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 221 39% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 221 39% 11%;
+  --primary: 272 72% 47%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 192 91% 36%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 210 20% 98%;
+  --muted-foreground: 215 14% 34%;
+  --accent: 210 20% 98%;
+  --accent-foreground: 221 39% 11%;
+  --destructive: 0 74% 42%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 215 16% 90%;
+  --input: 215 16% 90%;
+  --ring: 272 72% 47%;
+}
+
 // Sass Variables
-$primary-color: var(--color-primary);
-$secondary-color: var(--color-secondary);
-$success-color: var(--color-success);
-$warning-color: var(--color-warning);
-$error-color: var(--color-error);
+$primary-color: var(--accent-purple);
+$secondary-color: var(--accent-cyan);
+$success-color: var(--success);
+$warning-color: var(--streak);
+$error-color: var(--error);
 
 $font-family-primary: var(--font-family-primary);
 $font-family-mono: var(--font-family-mono);

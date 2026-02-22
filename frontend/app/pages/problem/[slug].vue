@@ -1,224 +1,146 @@
-<!-- frontend/pages/problem/[slug].vue -->
 <script setup lang="ts">
-  import { marked, use } from 'marked'
-  import DOMPurify from 'dompurify'
-  import type { SubmissionResult, Problem } from '../../../types/types'
-  import { useRootStore } from '../../stores'
-  
-  const route = useRoute()
-  const config = useRuntimeConfig()
-  const rootStore = useRootStore()
-  // State management
-  const userCode = ref('# بنویسید...')
-  const result = ref<SubmissionResult | null>(null)
-  const isLoading = ref(false)
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
+import type { SubmissionResult } from '../../../types/types'
+import { useRootStore } from '../../stores'
+import ProblemSidebar from '../../../components/problem/ProblemSidebar.vue'
+import ResultTerminal from '../../../components/problem/ResultTerminal.vue'
+import FloatingHelpButton from '../../../components/problem/FloatingHelpButton.vue'
 
-  // Computed properties for template access
-  const problem = computed(() => rootStore.state.problem)
-  const isProblemLoading = computed(() => rootStore.state.isProblemLoading)
+definePageMeta({ middleware: 'auth-client' })
 
-  // 1. Fetch problem details from store
-  onMounted(async () => {
-    if(rootStore.state.token == ''){
-      console.warn('No auth token found. Problem details may not load correctly.')
-      return
-    }
-    try {
-      await rootStore.fetchProblem(route.params.slug as string)
-      if (rootStore.state.problem.starterCode) {
-        userCode.value = rootStore.state.problem.starterCode
-      }
-    } catch (err) {
-      // Error is already handled in the store
-      console.error('Failed to fetch problem:', err)
-    }
-  })
-  
-  // 2. Submit code to Backend/execute
-  const handleRun = async () => {
-    if (!rootStore.state.problem.id) return
+const route = useRoute()
+const rootStore = useRootStore()
 
-    isLoading.value = true
-    result.value = null
-    try {
-      const data = await rootStore.runCode(userCode.value, 'python')
-      result.value = data
-    } finally {
-      isLoading.value = false
+const userCode = ref('# write your solution here')
+const result = ref<SubmissionResult | null>(null)
+const isLoading = ref(false)
+
+const problem = computed(() => rootStore.state.problem)
+const isProblemLoading = computed(() => rootStore.state.isProblemLoading)
+
+watch(
+  () => rootStore.state.problem.starterCode,
+  (starterCode) => {
+    if (typeof starterCode === 'string' && starterCode.trim().length > 0) {
+      userCode.value = starterCode
     }
+  },
+  { immediate: true }
+)
+
+onMounted(async () => {
+  rootStore.ensureAuth?.()
+  try {
+    await rootStore.fetchProblem(route.params.slug as string)
+  } catch (err) {
+    console.error('Failed to fetch problem:', err)
   }
-  // 3. Submit code to Backend/submit
-  const handleSubmit = async () => {
-    if (!rootStore.state.problem.id) return
+})
 
-    isLoading.value = true
-    result.value = null
-    try {
-      const data = await rootStore.submitCode(userCode.value, 'python')
-      result.value = data
-    } finally {
-      isLoading.value = false
-    }
+const handleRun = async () => {
+  if (!rootStore.state.problem.id) return
+
+  isLoading.value = true
+  result.value = null
+  try {
+    result.value = await rootStore.runCode(userCode.value, 'python')
+  } finally {
+    isLoading.value = false
   }
-  // 4. UI Helpers
-  const difficultyClass = (level: 'Easy' | 'Medium' | 'Hard') => {
-    const map: Record<'Easy' | 'Medium' | 'Hard', string> = {
-      'Easy': 'text-emerald-400 bg-emerald-400/10',
-      'Medium': 'text-amber-400 bg-amber-400/10',
-      'Hard': 'text-rose-400 bg-rose-400/10'
-    }
-    return map[level] || 'text-gray-400 bg-gray-400/10'
+}
+
+const handleSubmit = async () => {
+  if (!rootStore.state.problem.id) return
+
+  isLoading.value = true
+  result.value = null
+  try {
+    result.value = await rootStore.submitCode(userCode.value, 'python')
+  } finally {
+    isLoading.value = false
   }
-  
-  // 4. Markdown rendering (with HTML sanitization)
-  const renderedDescription = computed(() => {
-    if (!problem.value.description) return ''
-    const html = marked.parse(problem.value.description) as string
-    return DOMPurify.sanitize(html)
-  })
-  </script>
-  
-  <template>
-    <div class="h-screen flex flex-col bg-[#0d1117] text-gray-300 overflow-hidden" dir="rtl">
-      <!-- Header -->
-      <header class="h-14 border-b border-gray-800 flex items-center justify-between px-6 bg-[#161b22] shrink-0">
-        <div class="flex items-center gap-6">
-          <NuxtLink to="/" class="text-gray-400 hover:text-white transition">← بازگشت</NuxtLink>
-          <h1 v-if="problem.id" class="text-lg font-semibold text-white">{{ problem.title }}</h1>
-        </div>
-        <div class="flex gap-3">
-            <button
-            @click="handleRun"
-            :disabled="isLoading || rootStore.state.isProblemLoading"
-            class="flex items-center justify-center w-10 h-10 bg-blue-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-md font-bold transition-all shadow-lg shadow-emerald-900/20"
-            :title="'Run Code'"
-          >
-            <span v-if="isLoading" class="animate-spin text-lg material-icons">refresh</span>
-            <span v-else class="text-lg material-icons">send</span>
-          </button>
-          <button
-            @click="handleSubmit"
-            :disabled="isLoading || rootStore.state.isProblemLoading"
-            class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-5 py-1.5 rounded-md font-bold transition-all shadow-lg shadow-emerald-900/20"
-          >
-          <span v-if="isLoading" class="animate-spin text-lg material-icons">refresh</span>
-            <span>ثبت جواب</span>
-          </button>
-        </div>
-      </header>
-  
-      <!-- Main Body -->
-      <div class="flex-1 flex overflow-hidden">
-        <!-- Right Pane: Description (Persian) -->
-        <section class="w-1/2 overflow-y-auto border-l border-gray-800 p-8 custom-scrollbar">
-          <div v-if="isProblemLoading" class="animate-pulse space-y-4">
-            <div class="h-4 bg-gray-800 rounded w-1/4"></div>
-            <div class="h-8 bg-gray-800 rounded w-3/4"></div>
-            <div class="h-32 bg-gray-800 rounded"></div>
-          </div>
-  
-          <div v-else-if="problem.id">
-            <span :class="difficultyClass(problem.difficulty)" class="px-2 py-1 rounded text-xs font-medium uppercase tracking-wider">
-              {{ problem.difficulty }}
-            </span>
-            <h2 class="text-3xl font-bold mt-4 mb-6 text-white">{{ problem.title }}</h2>
-            <div class="prose prose-invert max-w-none text-gray-300 leading-loose text-lg" v-html="renderedDescription"></div>
-          </div>
-        </section>
-  
-        <!-- Left Pane: Editor (English/Code) -->
-        <section class="w-1/2 flex flex-col bg-[#0d1117]" dir="ltr">
-          <!-- Editor Container -->
-          <div class="flex-1 relative border-b border-gray-800">
-            <MonacoEditor
-              v-model="userCode"
-              lang="python"
-              :options="{ 
-                theme: 'vs-dark', 
-                fontSize: 16, 
-                lineNumbers: 'on',
-                minimap: { enabled: false },
-                automaticLayout: true,
-                padding: { top: 16 },
-                scrollBeyondLastLine: false,
-                fontFamily: 'JetBrains Mono, Menlo, Monaco, Courier New, monospace'
-              }"
-              class="absolute inset-0"
-            />
-          </div>
-  
-          <!-- Result Console -->
-          <div class="h-64 bg-[#010409] p-5 font-mono text-sm overflow-y-auto custom-scrollbar">
-            <h4 class="text-gray-500 text-xs mb-3 flex justify-between items-center uppercase tracking-widest">
-              <span>Test Results</span>
-              <span v-if="result" :class="result.status === 'Accepted' ? 'text-emerald-500' : 'text-rose-500'">
-                {{ result.status }}
-              </span>
-            </h4>
-            <div v-if="result">
-              <!-- Runtime Error -->
-              <div v-if="result.error" class="mb-4">
-                <div class="text-rose-400 font-semibold mb-2">Runtime Error:</div>
-                <pre class="text-rose-300 whitespace-pre-wrap text-xs">{{ result.error }}</pre>
-              </div>
-              
-              <!-- Logs -->
-              <div v-if="result.logs" class="mb-4">
-                <div class="text-gray-400 font-semibold mb-2">Logs:</div>
-                <pre class="text-gray-300 whitespace-pre-wrap text-xs">{{ result.logs }}</pre>
-              </div>
-              
-              <!-- Test Results -->
-              <div v-if="result.results && result.results.length > 0" class="space-y-3">
-                <div 
-                  v-for="(test, index) in result.results" 
-                  :key="test.id || index"
-                  class="border-l-2 pl-3"
-                  :class="test.passed ? 'border-emerald-500' : 'border-rose-500'"
-                >
-                  <div class="flex items-center gap-2 mb-1">
-                    <span :class="test.passed ? 'text-emerald-400' : 'text-rose-400'">
-                      {{ test.passed ? '✓' : '✗' }}
-                    </span>
-                    <span class="text-gray-400 text-xs">Test Case {{ index + 1 }}</span>
-                  </div>
-                  <div v-if="!test.passed || test.actual" class="text-xs space-y-1 mt-2">
-                    <div v-if="test.input && test.input !== '[Hidden]'">
-                      <span class="text-gray-500">Input:</span>
-                      <span class="text-gray-300 ml-2">{{ test.input }}</span>
-                    </div>
-                    <div v-if="test.expected && test.expected !== '[Hidden]'">
-                      <span class="text-gray-500">Expected:</span>
-                      <span class="text-emerald-300 ml-2">{{ test.expected }}</span>
-                    </div>
-                    <div v-if="test.actual && test.actual !== '[Hidden]'">
-                      <span class="text-gray-500">Got:</span>
-                      <span :class="[test.passed ? 'text-emerald-300' : 'text-rose-300', 'ml-2']">{{ test.actual }}</span>
-                    </div>
-                    <div v-if="test.time && test.actual !== '[Hidden]'">
-                      <span class="text-gray-500">time:</span>
-                      <span :class="[test.passed ? 'text-emerald-300' : 'text-rose-300', 'ml-2']">{{ test.time }}</span>
-                    </div>
-                    <div v-if="test.error" class="text-rose-400 mt-1">
-                      <span class="text-gray-500">Error:</span>
-                      <span class="ml-2">{{ test.error }}</span>
-                    </div>
-                  </div>
+}
+
+const renderedDescription = computed(() => {
+  if (!problem.value.description) return ''
+  return DOMPurify.sanitize(marked.parse(problem.value.description) as string)
+})
+</script>
+
+<template>
+  <div class="min-h-[calc(100vh-4rem)] flex flex-col bg-[color:var(--bg-primary)] text-[color:var(--text-primary)] overflow-y-auto" dir="rtl">
+    <main class="flex-1 flex flex-col lg:flex-row">
+      <ProblemSidebar
+        :problem="problem"
+        :is-loading="isProblemLoading"
+        :rendered-description="renderedDescription"
+      />
+
+      <section class="flex-1 flex flex-col bg-[color:var(--bg-primary)] order-1 lg:order-2" dir="ltr">
+        <div class="p-4 pb-0 flex-1 flex flex-col min-h-[450px]">
+          <div class="flex-1 rounded-2xl overflow-hidden flex flex-col shadow-xl bg-[#1e1e1e] border border-slate-800/60">
+            <div class="flex items-center justify-between px-4 py-3 bg-[#252525] border-b border-white/5" dir="ltr">
+              <div class="flex items-center gap-3">
+                <div class="flex gap-1.5">
+                  <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/70"></div>
+                </div>
+                <div class="flex items-center gap-2 bg-[#1e1e1e] px-4 py-1.5 rounded-t-lg border-t-2 border-secondary ml-2">
+                  <span class="material-icons text-sm text-yellow-500">code</span>
+                  <span class="text-xs font-mono text-slate-300">solution.py</span>
                 </div>
               </div>
             </div>
-            <div v-else class="text-gray-600 italic mt-2">
-              Write your solution and click "Run" to see the output.
+
+            <div class="flex-1 relative border-b border-gray-800">
+              <MonacoEditor
+                v-model="userCode"
+                lang="python"
+                :options="{ 
+                  theme: 'vs-dark', 
+                  fontSize: 16, 
+                  lineNumbers: 'on',
+                  minimap: { enabled: false },
+                  automaticLayout: true,
+                  padding: { top: 16 },
+                  scrollBeyondLastLine: false,
+                  fontFamily: 'JetBrains Mono, Menlo, Monaco, Courier New, monospace'
+                }"
+                class="absolute inset-0"
+              />
+            </div>
+
+            <div class="p-4 bg-[#161616] flex justify-end border-t border-white/5" dir="ltr">
+              <div class="flex gap-2">
+                <button
+                  :disabled="isLoading || isProblemLoading"
+                  class="cursor-pointer px-4 md:px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-white font-bold transition-all flex items-center gap-2 text-sm"
+                  @click="handleRun"
+                >
+                  <span v-if="isLoading" class="material-icons text-lg animate-spin">refresh</span>
+                  <span v-else class="material-icons text-lg">play_arrow</span>
+                  <span class="hidden sm:inline">Run</span>
+                </button>
+                <button
+                  :disabled="isLoading || isProblemLoading"
+                  class="cursor-pointer px-6 md:px-8 py-2.5 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-bold shadow-lg shadow-[0_0_15px_rgba(168,85,247,0.35)] transition-all flex items-center gap-2 text-sm"
+                  @click="handleSubmit"
+                >
+                  <span v-if="isLoading" class="material-icons text-lg animate-spin">refresh</span>
+                  <span v-else class="material-icons text-lg">check_circle</span>
+                  <span>Submit</span>
+                </button>
+              </div>
             </div>
           </div>
-        </section>
-      </div>
-    </div>
-  </template>
-  
-  <style scoped>
-  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #484f58; }
-  </style>
+        </div>
+
+        <ResultTerminal :result="result" />
+      </section>
+    </main>
+
+    <FloatingHelpButton />
+  </div>
+</template>
