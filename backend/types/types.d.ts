@@ -5,6 +5,7 @@ export interface PistonExecuteOptions {
       name: string
       content: string
     }>
+    stdin?: string
 }
 
 export interface PistonResult {
