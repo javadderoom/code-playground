@@ -33,6 +33,9 @@ export const useRootStore = defineStore('root', () => {
         if (import.meta.client && !token.value) {
             userStore.initializeAuth()
         }
+        if (import.meta.client && token.value && !user.value) {
+            void userStore.fetchMe()
+        }
         return token.value
     }
 
@@ -50,6 +53,7 @@ export const useRootStore = defineStore('root', () => {
         ensureAuth,
         runCode,
         submitCode,
+        logout: userStore.logout,
         register: userStore.register,
         login: userStore.login
     }

@@ -1,5 +1,5 @@
-// backend/src/db/schema.ts
-import { pgTable, serial, text, integer, timestamp, boolean, pgEnum, decimal, jsonb } from 'drizzle-orm/pg-core';
+﻿// backend/src/db/schema.ts
+import { pgTable, serial, text, integer, timestamp, boolean, pgEnum, decimal, jsonb, uuid } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // Difficulty enum for problem difficulty levels
@@ -36,19 +36,22 @@ export const testCases = pgTable('test_cases', {
 });
 
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
+  id: uuid('id').primaryKey(),
   username: text('username').notNull().unique(),
   email: text('email').notNull().unique(),
   name: text('name'),
   passwordHash: text('password_hash').notNull(),
-  xp: integer('xp').default(0), // For Phase 2 Leaderboards
+  xp: integer('xp').default(0), 
+  coins:integer('coins').default(0),
+  streakDays: integer('streak_days').default(0),
+  lastSolvedAt: timestamp('last_solved_at'),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
 // Update submissions to include userId
 export const submissions = pgTable('submissions', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id), // 👈 Link to User
+  userId: uuid('user_id').references(() => users.id), // ðŸ‘ˆ Link to User
   problemId: integer('problem_id').references(() => problems.id),
   code: text('code').notNull(),
   status: text('status').notNull(), // 'Accepted' | 'Wrong Answer'
@@ -57,3 +60,4 @@ export const submissions = pgTable('submissions', {
   memoryUsed: decimal('memory_used'),       // in kilobytes
   createdAt: timestamp('created_at').defaultNow(),
 });
+

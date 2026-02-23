@@ -3,10 +3,14 @@ import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
 
 interface User {
-  id: number
+  id: string
   username: string
   email: string
+  name?: string | null
   xp: number
+  coins?: number | null
+  streakDays?: number | null
+  lastSolvedAt?: string | null
   createdAt?: string
 }
 
@@ -14,6 +18,10 @@ interface AuthResponse {
   message: string
   user: User
   token: string
+}
+
+interface MeResponse {
+  user: User
 }
 
 export const useUserStore = defineStore('user', () => {
@@ -25,6 +33,39 @@ export const useUserStore = defineStore('user', () => {
 
   // Getters
   const isAuthenticated = computed(() => !!token.value && !!user.value)
+
+  async function fetchMe() {
+    if (!token.value) {
+      user.value = null
+      return null
+    }
+
+    try {
+      const config = useRuntimeConfig()
+      const response = await fetch(`${config.public.apiBaseClient}/auth/me`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 404) {
+          logout()
+          return null
+        }
+        throw new Error('Failed to fetch user profile')
+      }
+
+      const data: MeResponse = await response.json()
+      user.value = data.user
+      return data.user
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch user profile'
+      userError.value = errorMessage
+      return null
+    }
+  }
 
   // Actions
   async function register(userData: { username: string; email: string; password: string }) {
@@ -57,7 +98,7 @@ export const useUserStore = defineStore('user', () => {
       }
 
       // Show success toast
-      toast.success('ثبت نام با موفقیت انجام شد!')
+      toast.success('Ø«Ø¨Øª Ù†Ø§Ù… Ø¨Ø§ Ù…ÙˆÙÙ‚ÛŒØª Ø§Ù†Ø¬Ø§Ù… Ø´Ø¯!')
 
       return data
     } catch (err) {
@@ -100,7 +141,7 @@ export const useUserStore = defineStore('user', () => {
       }
 
       // Show success toast
-      toast.success('ورود با موفقیت انجام شد!')
+      toast.success('ÙˆØ±ÙˆØ¯ Ø¨Ø§ Ù…ÙˆÙÙ‚ÛŒØª Ø§Ù†Ø¬Ø§Ù… Ø´Ø¯!')
 
       return data
     } catch (err) {
@@ -123,17 +164,39 @@ export const useUserStore = defineStore('user', () => {
 
   function initializeAuth() {
     // Check for stored token on app initialization (client-side only)
-    if (process.client) {
+    if (import.meta.client) {
       const storedToken = localStorage.getItem('auth-token')
-      if (storedToken) {
-        token.value = storedToken
-        // TODO: Validate token and fetch user data from /me endpoint
+      if (!storedToken) return
+
+      if (isTokenExpired(storedToken)) {
+        localStorage.removeItem('auth-token')
+        token.value = null
+        user.value = null
+        return
+      }
+
+      token.value = storedToken
+      if (!user.value) {
+        void fetchMe()
       }
     }
   }
 
   // Initialize auth state on store creation
   initializeAuth()
+
+  function isTokenExpired(token: string): boolean {
+    try {
+      const parts = token.split('.')
+      if (parts.length < 2 || !parts[1]) return true
+      const payload = JSON.parse(atob(parts[1])) as { exp?: number }
+      if (!payload.exp) return false // if missing exp, treat as non-expiring
+      return payload.exp * 1000 <= Date.now()
+    } catch {
+      return true
+    }
+  }
+
 
   return {
     // State
@@ -143,9 +206,11 @@ export const useUserStore = defineStore('user', () => {
     userError,
     // Getters
     isAuthenticated,
+    isTokenExpired,
     // Actions
     register,
     login,
+    fetchMe,
     logout,
     initializeAuth,
   }

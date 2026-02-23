@@ -4,6 +4,7 @@ import { Hono } from 'hono';
 import { sign, verify } from 'hono/jwt';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
+import { v7 as uuidv7 } from 'uuid';
 import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
@@ -77,19 +78,25 @@ auth.post('/register', async (c) => {
     // Hash password
     console.log('/register => user checks passed, hashing password');
     const hashedPassword = await hashPassword(password);
+    const userId = uuidv7();
     console.log('/register => password hashed, inserting user');
 
     // Create user
     const [newUser] = await db.insert(users).values({
+      id: userId,
       username,
       email,
       passwordHash: hashedPassword,
-      xp: 0,
+     
     }).returning({
       id: users.id,
       username: users.username,
       email: users.email,
+      name: users.name,
       xp: users.xp,
+      coins: users.coins,
+      streakDays: users.streakDays,
+      lastSolvedAt: users.lastSolvedAt,
       createdAt: users.createdAt,
     });
 
@@ -100,7 +107,7 @@ auth.post('/register', async (c) => {
       {
         id: newUser.id,
         username: newUser.username,
-        
+        exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24h
       },
       JWT_SECRET
     );
@@ -164,7 +171,12 @@ auth.post('/login', async (c) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        name: user.name,
         xp: user.xp,
+        coins: user.coins,
+        streakDays: user.streakDays,
+        lastSolvedAt: user.lastSolvedAt,
+        createdAt: user.createdAt,
       },
       token,
     });
@@ -178,12 +190,44 @@ auth.post('/login', async (c) => {
 // Optional: Get current user info (requires authentication middleware)
 auth.get('/me', async (c) => {
   try {
-    // This would typically use auth middleware to get user from token
-    // For now, return a placeholder
-    return c.json({ error: 'Authentication middleware not implemented yet' }, 501);
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return c.json({ error: 'Missing or invalid authorization header' }, 401);
+    }
+
+    const token = authHeader.slice(7);
+    const payload = await verify(token, JWT_SECRET);
+    const userId = payload.id;
+
+    if (typeof userId !== 'string' || userId.length === 0) {
+      return c.json({ error: 'Invalid token payload' }, 401);
+    }
+
+    const userResult = await db.select().from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (userResult.length === 0) {
+      return c.json({ error: 'User not found' }, 404);
+    }
+
+    const user = userResult[0];
+    return c.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        xp: user.xp,
+        coins: user.coins,
+        streakDays: user.streakDays,
+        lastSolvedAt: user.lastSolvedAt,
+        createdAt: user.createdAt,
+      }
+    });
   } catch (error) {
     console.error('Get user error:', error);
-    return c.json({ error: 'Internal server error' }, 500);
+    return c.json({ error: 'Invalid or expired token' }, 401);
   }
 });
 

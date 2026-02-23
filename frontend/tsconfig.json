@@ -1,5 +1,5 @@
 {
-  "extends": "./.nuxt/tsconfig.json", // 👈 Add this line
+  "extends": "./.nuxt/tsconfig.json",
   "files": [],
   "references": [
     { "path": "./.nuxt/tsconfig.app.json" },
@@ -15,7 +15,15 @@
     }
   },
   "include": [
-    "types/**/*.ts", // 👈 Tell TS to look here
+    ".nuxt/nuxt.d.ts",
+    "app/**/*.ts",
+    "app/**/*.vue",
+    "components/**/*.ts",
+    "components/**/*.vue",
+    "plugins/**/*.ts",
+    "composables/**/*.ts",
+    "lib/**/*.ts",
+    "types/**/*.ts",
     "types/**/*.d.ts"
   ]
 }

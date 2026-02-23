@@ -1,7 +1,8 @@
-import { db } from './index.js';
+﻿import { db } from './index.js';
 import { problems, testCases, submissions, users, type Difficulty, type ProblemExample } from './schema.js';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
+import { v7 as uuidv7 } from 'uuid';
 async function seed() {
   console.log('🌱 Seeding database...');
 
@@ -30,7 +31,7 @@ async function seed() {
          await db.update(users).set(userData).where(eq(users.username, userData.username));
        } else {
          console.log(`👤 Creating new user: ${userData.username}`);
-         await db.insert(users).values(userData).returning();
+         await db.insert(users).values({ id: uuidv7(), ...userData }).returning();
        }
        
        console.log('✅ User created/updated successfully');
@@ -51,12 +52,7 @@ async function seed() {
 
 یک تابع بنویسید که دو عدد صحیح \`a\` و \`b\` را دریافت کرده و مجموع آن‌ها را برگرداند.
 
-## مثال
-**ورودی:**
-\`a = 1, b = 2\`
 
-**خروجی:**
-\`3\`
       `.trim(),
       difficulty: 'Easy' as Difficulty,
       functionName: 'add',
@@ -119,3 +115,4 @@ def add(a: int, b: int) -> int:
 }
 
 seed();
+

@@ -7,7 +7,7 @@ import { Pool } from 'pg';
 
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
-export async function processXpAward(userId: number, problemId: number, difficulty: string) {
+export async function processXpAward(userId: string, problemId: number, difficulty: string) {
   const connection = (db as any)._.client; // Access underlying PG connection
   
   try {

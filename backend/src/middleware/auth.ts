@@ -4,7 +4,7 @@ import { verify } from 'hono/jwt'
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key'
 
 export interface AuthContext {
-  userId: number
+  userId: string
   username: string
 }
 
