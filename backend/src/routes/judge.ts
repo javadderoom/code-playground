@@ -160,7 +160,7 @@ router.post('/execute', authMiddleware, async (c) => {
               input: test.isHidden ? '[Hidden]' : test.input,
               expected: test.isHidden ? '[Hidden]' : expectedOutput,
               actual: test.isHidden ? '[Hidden]' : actualOutput,
-              time:executionResult.output[i].time as number,
+              time: userRes?.time as number | undefined,
               error: userRes?.error
           });
         }
@@ -289,7 +289,7 @@ router.post('/submit', authMiddleware, async (c) => {
               input: test.isHidden ? '[Hidden]' : test.input,
               expected: test.isHidden ? '[Hidden]' : expectedOutput,
               actual: test.isHidden ? '[Hidden]' : actualOutput,
-              time:executionResult.output[i].time as number,
+              time: userRes?.time as number | undefined,
               error: userRes?.error
           });
       }
@@ -301,6 +301,9 @@ router.post('/submit', authMiddleware, async (c) => {
     
     let xpEarned = 0;
     let totalXp = 0;
+    let coinsEarned = 0;
+    let totalCoins = 0;
+    let streakDays = 0;
     
     try {
       await db.insert(submissions).values({
@@ -316,10 +319,13 @@ router.post('/submit', authMiddleware, async (c) => {
       
       // Award XP if submission is accepted
       if (status === 'Accepted') {
-        const xpResult = await processXpAward(userId, problemId, problem.difficulty);
-        xpEarned = xpResult.earned;
-        totalXp = xpResult.total ?? 0;
-        console.log(`XP awarded: ${xpEarned} (total: ${totalXp})`);
+        const rewardResult = await processXpAward(userId, problemId, problem.difficulty);
+        xpEarned = rewardResult.xpEarned;
+        totalXp = rewardResult.totalXp ?? 0;
+        coinsEarned = rewardResult.coinsEarned ?? 0;
+        totalCoins = rewardResult.totalCoins ?? 0;
+        streakDays = rewardResult.streakDays ?? 0;
+        console.log(`Rewards awarded: xp=${xpEarned}, coins=${coinsEarned}, streak=${streakDays}`);
       }
     } catch (dbError) {
       console.error('Failed to save submission:', dbError);
@@ -332,7 +338,10 @@ router.post('/submit', authMiddleware, async (c) => {
         error: executionResult.error,
         logs: executionResult.logs,
         xpEarned,
-        totalXp
+        totalXp,
+        coinsEarned,
+        totalCoins,
+        streakDays
     });
 
   } catch (error: any) {

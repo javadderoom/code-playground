@@ -17,6 +17,7 @@
     "@pinia/nuxt": "^0.11.3",
     "@tailwindcss/vite": "^4.1.18",
     "@unhead/vue": "^2.0.19",
+    "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.3.1",

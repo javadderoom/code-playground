@@ -43,8 +43,12 @@ export const useRootStore = defineStore('root', () => {
         return problemStore.runCode(code, language, ensureAuth())
     }
 
-    const submitCode = (code: string, language: string) => {
-        return problemStore.submitCode(code, language, ensureAuth())
+    const submitCode = async (code: string, language: string) => {
+        const result = await problemStore.submitCode(code, language, ensureAuth())
+        if (result.status === 'Accepted') {
+            await userStore.fetchMe()
+        }
+        return result
     }
 
     return {

@@ -1,0 +1,129 @@
+﻿<!doctype html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeQuest Reward Preview</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#a855f7',
+            secondary: '#06b6d4',
+            xp: '#a855f7',
+            coins: '#facc15',
+            streak: '#fb923c',
+            bgPrimary: '#0d1117',
+            bgSecondary: '#161b22'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-bgPrimary text-slate-100">
+  <main class="relative min-h-screen overflow-hidden">
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl"></div>
+      <div class="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-secondary/20 blur-3xl"></div>
+    </div>
+
+    <section class="relative mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4 py-8">
+      <div class="w-full overflow-hidden rounded-3xl border border-white/10 bg-bgSecondary/95 shadow-2xl">
+        <div class="p-6 md:p-10">
+          <div class="text-center">
+            <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border border-coins/40 bg-coins/10">
+              <span class="material-icons text-4xl text-coins">emoji_events</span>
+            </div>
+            <h1 class="text-3xl font-black md:text-5xl">قبولی ثبت شد</h1>
+            <p class="mt-2 text-sm text-slate-300 md:text-base">پاسخ شما برای مسئله <span class="font-bold text-white">Sum of Two Numbers</span> پذیرفته شد.</p>
+            <p class="mt-1 text-xs text-slate-400 md:text-sm">پاداش فقط برای اولین حل موفق هر مسئله ثبت می‌شود.</p>
+          </div>
+
+          <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <article class="rounded-2xl border border-white/10 bg-white/5 p-5 text-center">
+              <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-xp/15">
+                <span class="material-icons text-3xl text-xp">grade</span>
+              </div>
+              <p class="text-2xl font-black">+30 XP</p>
+              <p class="mt-1 text-xs uppercase tracking-widest text-slate-400">Experience</p>
+            </article>
+
+            <article class="rounded-2xl border border-coins/30 bg-coins/10 p-5 text-center shadow-[0_0_30px_rgba(250,204,21,0.15)]">
+              <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-coins text-black">
+                <span class="material-icons text-3xl">paid</span>
+              </div>
+              <p class="text-2xl font-black">+15</p>
+              <p class="mt-1 text-xs uppercase tracking-widest text-slate-400">Coins</p>
+            </article>
+
+            <article class="rounded-2xl border border-white/10 bg-white/5 p-5 text-center">
+              <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-streak/15">
+                <span class="material-icons text-3xl text-streak">local_fire_department</span>
+              </div>
+              <p class="text-2xl font-black">7 روز</p>
+              <p class="mt-1 text-xs uppercase tracking-widest text-slate-400">Streak</p>
+            </article>
+          </div>
+
+          <div class="mt-7 rounded-2xl border border-white/10 bg-black/20 p-5">
+            <div class="mb-3 flex items-end justify-between">
+              <div class="flex items-baseline gap-2">
+                <span class="text-sm text-slate-400">لول</span>
+                <span class="text-2xl font-black">5</span>
+              </div>
+              <span class="text-sm font-bold text-primary">68%</span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-sm text-slate-400">لول</span>
+                <span class="text-2xl font-black">6</span>
+              </div>
+            </div>
+
+            <div class="h-3 w-full overflow-hidden rounded-full bg-slate-800">
+              <div class="h-full w-[68%] rounded-full bg-gradient-to-l from-primary to-secondary"></div>
+            </div>
+
+            <p class="mt-3 text-center text-sm text-slate-300">64 XP تا مرحله بعدی</p>
+          </div>
+
+          <div class="mt-7 flex justify-center">
+            <button type="button" class="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(168,85,247,0.35)] transition-colors hover:bg-primary/90">
+              ادامه مسیر یادگیری
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const colors = ['#a855f7', '#06b6d4', '#facc15', '#fb923c']
+    const baseOptions = {
+      spread: 78,
+      gravity: 0.9,
+      startVelocity: 40,
+      ticks: 220,
+      zIndex: 999
+    }
+
+    setTimeout(() => {
+      confetti({ ...baseOptions, particleCount: 100, origin: { x: 0.25, y: 0.7 }, colors })
+      confetti({ ...baseOptions, particleCount: 100, origin: { x: 0.75, y: 0.7 }, colors })
+    }, 250)
+  </script>
+</body>
+</html>

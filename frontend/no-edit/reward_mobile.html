@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="fa"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f48c25",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#1a120b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "system-ui", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Plus Jakarta Sans', 'Tahoma', sans-serif;
+            overscroll-behavior-y: contain;
+        }
+        .custom-blur {
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-100 min-h-screen overflow-x-hidden">
+<div class="relative flex min-h-screen w-full flex-col bg-background-dark font-display">
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+<div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-primary/20 rounded-full blur-[80px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[250px] h-[250px] bg-yellow-500/10 rounded-full blur-[60px]"></div>
+</div>
+<main class="relative z-10 flex flex-col items-center px-5 py-8 min-h-screen">
+<div class="relative w-full flex justify-center mb-6">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-primary/30 rounded-full blur-3xl"></div>
+<div class="relative w-48 h-48 bg-center bg-no-repeat bg-contain" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC-gSaAULbYM8_uXP5wjvbRdIOtGcZFpGEO75aRZ3EeWepI2tFv0s3cDRGtY7-v5oM5OSGEogHrauMO4dZw1EybYLUXHQn93-Oo0aQDE2xBfD2zYErzlGNTnmSjhD1JZ4akWa1yJqBxwL-8AWYojYUQ-uE8ihSGdHJEc8ccoLO8eoroi6MEoN0rVmGFlX1NB-27BZvXDW87kP-CEXfGqRwsbuSrcs6AryaUhcVra0nGII736jjhW7mOGat2QJGp7K6tw_lBDwzw-keX')">
+</div>
+</div>
+<div class="text-center space-y-1 mb-8">
+<h1 class="text-white text-4xl font-bold tracking-tight">فوق‌العاده بود!</h1>
+<p class="text-primary text-base font-medium opacity-90">ماموریت با موفقیت به پایان رسید</p>
+</div>
+<div class="flex flex-col gap-3 w-full max-w-sm mb-10">
+<div class="bg-gradient-to-l from-primary/20 to-primary/5 border border-primary/40 p-4 rounded-2xl flex items-center gap-4 shadow-[0_0_20px_rgba(244,140,37,0.15)]">
+<div class="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-background-dark shadow-lg shrink-0">
+<span class="material-symbols-outlined text-3xl">emoji_events</span>
+</div>
+<div class="flex flex-col">
+<p class="text-white text-lg font-bold">نشان منطق‌دان</p>
+<p class="text-primary text-xs font-medium">نشان جدید باز شد</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-white/5 border border-white/10 p-4 rounded-2xl flex flex-col items-center gap-2 backdrop-blur-sm">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">bolt</span>
+</div>
+<div class="text-center">
+<p class="text-white text-lg font-bold">100+ امتیاز</p>
+<p class="text-slate-400 text-[10px] uppercase tracking-wider">XP</p>
+</div>
+</div>
+<div class="bg-white/5 border border-white/10 p-4 rounded-2xl flex flex-col items-center gap-2 backdrop-blur-sm">
+<div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+<span class="material-symbols-outlined text-2xl">diamond</span>
+</div>
+<div class="text-center">
+<p class="text-white text-lg font-bold">20+ الماس</p>
+<p class="text-slate-400 text-[10px]">GEMS</p>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full max-w-sm bg-white/5 p-6 rounded-2xl border border-white/5 mt-auto">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-1.5">
+<span class="text-slate-400 text-xs">سطح</span>
+<span class="text-white text-xl font-bold uppercase">12</span>
+</div>
+<div class="bg-primary/20 px-2 py-0.5 rounded-full">
+<span class="text-primary text-xs font-bold">85%</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="text-slate-400 text-xs">سطح</span>
+<span class="text-white text-xl font-bold uppercase">13</span>
+</div>
+</div>
+<div class="h-3 w-full bg-slate-800/50 rounded-full overflow-hidden mb-3">
+<div class="h-full bg-gradient-to-l from-primary to-yellow-500 rounded-full relative" style="width: 85%;">
+<div class="absolute top-0 right-0 bottom-0 w-8 bg-white/20 blur-md"></div>
+</div>
+</div>
+<div class="flex justify-center items-center gap-1.5 text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>۳۵۰ امتیاز تا سطح بعدی</span>
+</div>
+</div>
+<div class="w-full max-w-sm mt-6">
+<button class="w-full bg-primary hover:bg-primary/90 text-background-dark font-bold py-4.5 rounded-2xl text-lg transition-all shadow-[0_8px_24px_rgba(244,140,37,0.3)] flex items-center justify-center gap-3">
+<span>ادامه مسیر یادگیری</span>
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+</div>
+</main>
+</div>
+
+</body></html>

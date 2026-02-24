@@ -1,63 +1,121 @@
+import { db } from '../db/index.js'
+import { users, submissions } from '../db/schema.js'
+import { and, eq, sql } from 'drizzle-orm'
+import Redis from 'ioredis'
 
-import { db } from '../db';
-import { users, submissions } from '../db/schema';
-import { eq, and, sql } from 'drizzle-orm';
-import Redis from 'ioredis';
-import { Pool } from 'pg';
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379')
 
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+const XP_TABLE = { Easy: 10, Medium: 30, Hard: 50 } as const
+const COINS_TABLE = { Easy: 5, Medium: 15, Hard: 25 } as const
+
+const utcDayKey = (date: Date) => {
+  const y = date.getUTCFullYear()
+  const m = `${date.getUTCMonth() + 1}`.padStart(2, '0')
+  const d = `${date.getUTCDate()}`.padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+const isSameUtcDay = (a: Date, b: Date) => utcDayKey(a) === utcDayKey(b)
+
+const isYesterdayUtc = (last: Date, now: Date) => {
+  const y = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+  y.setUTCDate(y.getUTCDate() - 1)
+  return isSameUtcDay(last, y)
+}
 
 export async function processXpAward(userId: string, problemId: number, difficulty: string) {
-  const connection = (db as any)._.client; // Access underlying PG connection
-  
-  try {
-    // Use transaction to prevent race conditions
-    await connection.query('BEGIN');
-    
-    try {
-      // 1. Check if already solved correctly (with lock to prevent duplicates)
-      const previousSuccess = await db.select()
-        .from(submissions)
-        .where(and(
-          eq(submissions.userId, userId),
-          eq(submissions.problemId, problemId),
-          eq(submissions.status, 'Accepted')
-        ))
-        .limit(1);
+  const [user] = await db
+    .select({
+      id: users.id,
+      username: users.username,
+      xp: users.xp,
+      coins: users.coins,
+      streakDays: users.streakDays,
+      lastSolvedAt: users.lastSolvedAt,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
 
-      // 2. If it's a first-time win
-      if (previousSuccess.length === 0) {
-        const xpTable = { 'Easy': 10, 'Medium': 30, 'Hard': 50 };
-        const points = xpTable[difficulty as keyof typeof xpTable] || 10;
+  if (!user) {
+    throw new Error(`User not found for reward processing: ${userId}`)
+  }
 
-        // 3. Update SQL (Source of Truth)
-        const [updatedUser] = await db.update(users)
-          .set({ xp: sql`${users.xp} + ${points}` })
-          .where(eq(users.id, userId))
-          .returning();
+  // /submit writes the accepted submission first; count===1 means first-ever accepted solve.
+  const [acceptedCountRow] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(submissions)
+    .where(
+      and(
+        eq(submissions.userId, userId),
+        eq(submissions.problemId, problemId),
+        eq(submissions.status, 'Accepted'),
+      ),
+    )
 
-        // 4. Update Redis (Performance Layer)
-        const xpValue = updatedUser.xp ?? 0;
-        await redis.zadd('leaderboard:global', xpValue, updatedUser.username);
-        
-        // Commit transaction
-        await connection.query('COMMIT');
-        
-        console.log(`XP Award: User ${userId} earned ${points} XP (total: ${xpValue})`);
-        return { earned: points, total: updatedUser.xp };
-      }
-      
-      // Commit if no XP awarded
-      await connection.query('COMMIT');
-      return { earned: 0 };
-      
-    } catch (transactionError) {
-      // Rollback on any error
-      await connection.query('ROLLBACK');
-      throw transactionError;
+  const acceptedCount = Number(acceptedCountRow?.count ?? 0)
+  const isFirstAccepted = acceptedCount === 1
+
+  const xpEarned = isFirstAccepted ? (XP_TABLE[difficulty as keyof typeof XP_TABLE] ?? XP_TABLE.Easy) : 0
+  const coinsEarned = isFirstAccepted ? (COINS_TABLE[difficulty as keyof typeof COINS_TABLE] ?? COINS_TABLE.Easy) : 0
+
+  const now = new Date()
+  const lastSolvedAt = user.lastSolvedAt ? new Date(user.lastSolvedAt) : null
+  const currentStreak = user.streakDays ?? 0
+
+  let streakDays = currentStreak
+  let shouldUpdateLastSolvedAt = false
+
+  // Streak can advance only once per day.
+  if (!lastSolvedAt || !isSameUtcDay(lastSolvedAt, now)) {
+    shouldUpdateLastSolvedAt = true
+    streakDays = lastSolvedAt && isYesterdayUtc(lastSolvedAt, now) ? currentStreak + 1 : 1
+  }
+
+  const shouldWrite =
+    xpEarned > 0 || coinsEarned > 0 || shouldUpdateLastSolvedAt
+
+  if (!shouldWrite) {
+    return {
+      xpEarned: 0,
+      totalXp: user.xp ?? 0,
+      coinsEarned: 0,
+      totalCoins: user.coins ?? 0,
+      streakDays: currentStreak,
     }
-  } catch (error) {
-    console.error('Transaction error in processXpAward:', error);
-    throw error;
+  }
+
+  const [updatedUser] = await db
+    .update(users)
+    .set({
+      xp: sql`COALESCE(${users.xp}, 0) + ${xpEarned}`,
+      coins: sql`COALESCE(${users.coins}, 0) + ${coinsEarned}`,
+      streakDays,
+      lastSolvedAt: shouldUpdateLastSolvedAt ? now : user.lastSolvedAt,
+    })
+    .where(eq(users.id, userId))
+    .returning({
+      username: users.username,
+      xp: users.xp,
+      coins: users.coins,
+      streakDays: users.streakDays,
+    })
+
+  const totalXp = updatedUser?.xp ?? user.xp ?? 0
+  const totalCoins = updatedUser?.coins ?? user.coins ?? 0
+  const updatedStreak = updatedUser?.streakDays ?? streakDays
+
+  try {
+    await redis.zadd('leaderboard:global', totalXp, updatedUser?.username ?? user.username)
+  } catch (redisError) {
+    console.warn('Leaderboard update failed:', redisError)
+  }
+
+  return {
+    xpEarned,
+    totalXp,
+    coinsEarned,
+    totalCoins,
+    streakDays: updatedStreak,
   }
 }

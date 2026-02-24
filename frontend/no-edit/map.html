@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="fa"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CodeLearner - مسیر یادگیری</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#25e2f4",
+                        "primary-dark": "#00b8d4",
+                        "secondary": "#a855f7", // Vibrant Purple
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#0f172a", // Deep slate/charcoal
+                        "card-dark": "#1e293b",
+                        "neutral-dark": "#334155",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Vazirmatn", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                    backgroundImage: {
+                        'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+        
+        .neon-glow {
+            box-shadow: 0 0 10px rgba(37, 226, 244, 0.5), 0 0 20px rgba(37, 226, 244, 0.3);
+        }
+        
+        .path-dash {
+            stroke-dasharray: 10, 10;
+            animation: dash 30s linear infinite;
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 1000;
+            }
+        }
+
+        .floating-node {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen overflow-x-hidden flex flex-col">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-800 bg-[#0f172a]/90 backdrop-blur-md px-6 py-3 lg:px-10">
+<div class="flex items-center gap-4 text-white">
+<div class="size-8 text-primary">
+<span class="material-symbols-outlined" style="font-size: 32px;">terminal</span>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-tight">کدآموز <span class="text-primary font-display text-sm opacity-80">(CodeLearner)</span></h2>
+</div>
+<!-- Desktop Menu -->
+<div class="hidden md:flex flex-1 justify-center gap-8">
+<a class="text-white hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">خانه</a>
+<a class="text-primary text-sm font-bold leading-normal border-b-2 border-primary pb-1" href="#">مسیر یادگیری</a>
+<a class="text-white hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">چالش‌ها</a>
+<a class="text-white hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">جدول امتیازات</a>
+</div>
+<div class="flex items-center gap-3">
+<div class="hidden sm:flex items-center gap-2 bg-slate-800 rounded-full px-3 py-1 border border-slate-700">
+<span class="material-symbols-outlined text-yellow-400 text-sm">local_fire_department</span>
+<span class="text-white font-display text-sm font-bold">12</span>
+</div>
+<div class="hidden sm:flex items-center gap-2 bg-slate-800 rounded-full px-3 py-1 border border-slate-700">
+<span class="material-symbols-outlined text-blue-400 text-sm">diamond</span>
+<span class="text-white font-display text-sm font-bold">450</span>
+</div>
+<button class="flex items-center justify-center rounded-full size-10 bg-slate-800 hover:bg-slate-700 text-white transition-colors relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full"></span>
+</button>
+<div class="size-10 rounded-full bg-slate-700 border-2 border-slate-600 overflow-hidden cursor-pointer">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhVLU9EFNiZKf9IhErW_O_f1WZWpoIYi9lNgUMLZIdK4JK1WwsLhra9yiRiwBqhyy77ixdrPbxNh8fI2VA4Uy9hwnmptfSnmjLdfgWXKKtd7CfqhoQ2U1rgdJakgyXPeE-JXbiHkHT2aaM1xL7NRxNfghy-HxSzvdoSTsd4ZG1o-MglghMadaqmmbGllCaD8hOJZu81gpEWy_bDIKxPQTAMcoAWpUrOEI6Hw35rwDPn0sgQoq6gBm2yXAbbUU3P8SY92Qxnhlsqq3b"/>
+</div>
+</div>
+</header>
+<main class="relative flex-grow flex justify-center w-full">
+<!-- Background Grid Effect -->
+<div class="absolute inset-0 z-0 opacity-10 pointer-events-none" style="background-size: 40px 40px; background-image: linear-gradient(to right, #334155 1px, transparent 1px), linear-gradient(to bottom, #334155 1px, transparent 1px);"></div>
+<div class="layout-container w-full max-w-7xl flex gap-8 p-4 md:p-8 z-10 relative">
+<!-- Main Path Area (Center) -->
+<div class="flex-grow flex flex-col items-center relative pb-32">
+<!-- Region Header Mobile -->
+<div class="md:hidden w-full mb-8 bg-card-dark p-4 rounded-xl border border-slate-700 shadow-lg text-center">
+<h3 class="text-primary font-bold text-lg mb-1">منطقه ۱: مبانی پایتون</h3>
+<p class="text-slate-400 text-sm">پیشرفت: ۴۵٪</p>
+</div>
+<!-- Path SVG Container -->
+<!-- The SVG path is calculated to weave between the nodes -->
+<svg class="absolute top-0 left-0 w-full h-full pointer-events-none z-0" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="pathGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#25e2f4" stop-opacity="0"></stop>
+<stop offset="10%" stop-color="#25e2f4" stop-opacity="1"></stop>
+<stop offset="90%" stop-color="#25e2f4" stop-opacity="1"></stop>
+<stop offset="100%" stop-color="#25e2f4" stop-opacity="0"></stop>
+</lineargradient>
+<filter id="glow">
+<fegaussianblur result="coloredBlur" stddeviation="4"></fegaussianblur>
+<femerge>
+<femergenode in="coloredBlur"></femergenode>
+<femergenode in="SourceGraphic"></femergenode>
+</femerge>
+</filter>
+</defs>
+<!-- Adjust d path based on node positions roughly -->
+<path class="path-dash opacity-60" d="M 50% 80 Q 50% 150, 50% 150 T 50% 300 T 50% 450 T 50% 600 T 50% 750 T 50% 900" fill="none" filter="url(#glow)" stroke="url(#pathGradient)" stroke-width="4"></path>
+</svg>
+<!-- START NODE -->
+<div class="relative z-10 flex flex-col items-center mb-24 group cursor-pointer">
+<div class="absolute -inset-4 bg-secondary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+<div class="size-20 rounded-full bg-secondary flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.6)] border-4 border-[#2d1b4e] transform transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined text-white text-4xl">flag</span>
+</div>
+<div class="absolute top-0 left-24 w-40 hidden md:block opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+<div class="bg-card-dark p-3 rounded-lg border border-slate-700 shadow-xl">
+<p class="text-white font-bold text-sm">شروع مسیر</p>
+<p class="text-slate-400 text-xs mt-1">خوش آمدید!</p>
+</div>
+</div>
+<span class="mt-3 bg-card-dark/80 px-3 py-1 rounded-full text-secondary font-bold text-sm border border-secondary/30 backdrop-blur-sm">شروع</span>
+</div>
+<!-- UNLOCKED NODE 1 -->
+<div class="relative z-10 flex flex-col items-center mb-24 ml-16 md:ml-32 group cursor-pointer">
+<div class="size-16 rounded-full bg-secondary flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.5)] border-4 border-[#2d1b4e] transform transition-transform group-hover:scale-110 hover:bg-[#b066f8]">
+<span class="material-symbols-outlined text-white text-3xl">data_object</span>
+</div>
+<div class="absolute top-2 -right-48 w-44 hidden md:block opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-4 group-hover:translate-x-0 z-20">
+<div class="bg-card-dark p-3 rounded-lg border border-slate-700 shadow-xl relative">
+<div class="absolute top-4 -left-2 w-0 h-0 border-t-[8px] border-t-transparent border-r-[8px] border-r-slate-700 border-b-[8px] border-b-transparent"></div>
+<p class="text-white font-bold text-sm">متغیرها</p>
+<p class="text-slate-400 text-xs mt-1">آشنایی با متغیرها و نحوه ذخیره سازی داده.</p>
+<div class="mt-2 flex gap-2">
+<span class="text-[10px] bg-slate-800 text-yellow-400 px-1.5 py-0.5 rounded">+10 XP</span>
+</div>
+</div>
+</div>
+<span class="mt-3 text-slate-300 font-medium text-sm">متغیرها</span>
+<!-- Rating Stars -->
+<div class="flex -mt-8 mb-6 absolute -bottom-8">
+<span class="material-symbols-outlined text-yellow-400 text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-yellow-400 text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-yellow-400 text-[16px] fill-current">star</span>
+</div>
+</div>
+<!-- UNLOCKED NODE 2 (Current) -->
+<div class="relative z-10 flex flex-col items-center mb-24 mr-16 md:mr-32 floating-node group cursor-pointer">
+<!-- Ripple/Pulse Effect for Current Node -->
+<div class="absolute -inset-6 border-2 border-primary/30 rounded-full animate-ping opacity-75"></div>
+<div class="absolute -inset-2 bg-primary/20 blur-md rounded-full neon-glow"></div>
+<div class="size-20 rounded-full bg-background-dark flex items-center justify-center shadow-[0_0_30px_rgba(37,226,244,0.4)] border-4 border-primary transform transition-transform group-hover:scale-105">
+<span class="material-symbols-outlined text-primary text-4xl">code</span>
+</div>
+<!-- Floating Badge -->
+<div class="absolute -top-4 bg-primary text-background-dark text-xs font-bold px-2 py-1 rounded-md shadow-lg animate-bounce">
+                        درس بعدی
+                    </div>
+<div class="absolute top-2 -left-48 w-44 hidden md:block z-20">
+<div class="bg-card-dark p-4 rounded-xl border border-primary/50 shadow-[0_0_15px_rgba(37,226,244,0.15)] relative">
+<div class="absolute top-6 -right-2 w-0 h-0 border-t-[8px] border-t-transparent border-l-[8px] border-l-primary/50 border-b-[8px] border-b-transparent"></div>
+<p class="text-white font-bold text-sm">توابع و ورودی‌ها</p>
+<p class="text-slate-400 text-xs mt-1">یاد بگیرید چگونه کدهای خود را ماژولار کنید.</p>
+<button class="mt-3 w-full bg-primary hover:bg-primary-dark text-background-dark text-xs font-bold py-1.5 rounded-lg transition-colors">
+                                شروع کردن
+                            </button>
+</div>
+</div>
+<span class="mt-4 text-white font-bold text-base shadow-black drop-shadow-md">توابع</span>
+</div>
+<!-- LOCKED NODE 1 -->
+<div class="relative z-10 flex flex-col items-center mb-24 ml-8 md:ml-16 group">
+<div class="size-16 rounded-full bg-slate-800 flex items-center justify-center border-4 border-slate-700 grayscale">
+<span class="material-symbols-outlined text-slate-500 text-3xl">lock</span>
+</div>
+<span class="mt-3 text-slate-500 font-medium text-sm">شرط‌ها</span>
+</div>
+<!-- LOCKED NODE 2 -->
+<div class="relative z-10 flex flex-col items-center mb-24 mr-8 md:mr-16 group">
+<div class="size-16 rounded-full bg-slate-800 flex items-center justify-center border-4 border-slate-700 grayscale">
+<span class="material-symbols-outlined text-slate-500 text-3xl">lock</span>
+</div>
+<span class="mt-3 text-slate-500 font-medium text-sm">حلقه‌ها</span>
+</div>
+<!-- LOCKED NODE 3 (Boss Level) -->
+<div class="relative z-10 flex flex-col items-center mb-12 group">
+<div class="size-24 rounded-xl rotate-45 bg-slate-800 flex items-center justify-center border-4 border-slate-700 grayscale shadow-lg">
+<div class="-rotate-45">
+<span class="material-symbols-outlined text-slate-500 text-4xl">swords</span>
+</div>
+</div>
+<span class="mt-8 text-slate-500 font-bold text-sm bg-slate-800 px-3 py-1 rounded-full">چالش نهایی: ماشین حساب</span>
+</div>
+</div>
+<!-- Right Sidebar (Floating - RTL means physically right) -->
+<aside class="hidden md:flex flex-col w-80 shrink-0 sticky top-24 h-fit gap-6">
+<!-- Current Region Card -->
+<div class="bg-card-dark rounded-xl p-6 border border-slate-700 shadow-xl relative overflow-hidden group">
+<!-- Background decoration -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div>
+<p class="text-slate-400 text-xs font-medium mb-1">منطقه فعلی</p>
+<h3 class="text-white text-xl font-bold">مبانی پایتون</h3>
+</div>
+<div class="size-10 rounded-lg bg-slate-800 flex items-center justify-center text-primary border border-slate-700">
+<span class="material-symbols-outlined">map</span>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="mb-2 flex justify-between text-sm">
+<span class="text-slate-300">پیشرفت منطقه</span>
+<span class="text-primary font-display">45%</span>
+</div>
+<div class="w-full bg-slate-800 rounded-full h-2.5 mb-6 overflow-hidden">
+<div class="bg-gradient-to-l from-primary to-blue-500 h-2.5 rounded-full" style="width: 45%"></div>
+</div>
+<!-- Chapter List (Mini) -->
+<div class="space-y-3">
+<div class="flex items-center gap-3 p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+<div class="size-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<span class="text-slate-300 text-sm">نحو (Syntax)</span>
+</div>
+<div class="flex items-center gap-3 p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+<div class="size-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<span class="text-slate-300 text-sm">متغیرها</span>
+</div>
+<div class="flex items-center gap-3 p-2 rounded-lg bg-primary/10 border border-primary/30">
+<div class="size-6 rounded-full bg-primary/20 text-primary flex items-center justify-center animate-pulse">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span>
+</div>
+<span class="text-white font-medium text-sm">توابع</span>
+</div>
+</div>
+</div>
+<!-- Daily Quests -->
+<div class="bg-card-dark rounded-xl p-6 border border-slate-700 shadow-lg">
+<h4 class="text-white font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-yellow-400">event_note</span>
+                        ماموریت‌های روزانه
+                    </h4>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-xs text-slate-400 mb-1">
+<span>کسب ۵۰ امتیاز</span>
+<span>30/50</span>
+</div>
+<div class="w-full bg-slate-800 rounded-full h-1.5">
+<div class="bg-yellow-400 h-1.5 rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs text-slate-400 mb-1">
+<span>تکمیل ۱ درس بدون خطا</span>
+<span>0/1</span>
+</div>
+<div class="w-full bg-slate-800 rounded-full h-1.5">
+<div class="bg-slate-600 h-1.5 rounded-full" style="width: 0%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- CTA Banner -->
+<div class="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-xl p-6 border border-white/10 shadow-lg text-center relative overflow-hidden">
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30"></div>
+<span class="material-symbols-outlined text-5xl text-white/20 absolute -bottom-2 -left-2 rotate-12">emoji_events</span>
+<h4 class="text-white font-bold mb-2 relative z-10">نسخه حرفه‌ای</h4>
+<p class="text-indigo-200 text-xs mb-4 relative z-10">تمرین‌های نامحدود و پروژه‌های واقعی دریافت کنید.</p>
+<button class="w-full bg-white text-indigo-900 hover:bg-indigo-50 font-bold py-2 rounded-lg text-sm transition-colors relative z-10 shadow-md">
+                        ارتقا دهید
+                    </button>
+</div>
+</aside>
+</div>
+</main>
+<!-- Mobile Bottom Nav -->
+<nav class="md:hidden fixed bottom-0 w-full bg-[#0f172a] border-t border-slate-800 z-50 px-6 py-3 flex justify-between items-center text-slate-400">
+<a class="flex flex-col items-center gap-1 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span class="text-[10px]">خانه</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined text-2xl fill-current">map</span>
+<span class="text-[10px]">مسیر</span>
+</a>
+<a class="flex flex-col items-center gap-1 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">emoji_events</span>
+<span class="text-[10px]">رتبه‌ها</span>
+</a>
+<a class="flex flex-col items-center gap-1 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">person</span>
+<span class="text-[10px]">پروفایل</span>
+</a>
+</nav>
+</body></html>

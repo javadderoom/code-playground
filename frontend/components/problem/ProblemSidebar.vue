@@ -1,6 +1,6 @@
 ﻿<template>
   <aside
-    class="w-full lg:w-[380px] xl:w-[420px] p-4 md:p-6 overflow-y-auto border-l border-border bg-[color:var(--bg-secondary)] flex flex-col gap-6 order-2 lg:order-1 custom-scrollbar"
+    class="w-full lg:w-[380px] xl:w-[420px] p-4 md:p-6 border-t lg:border-t-0 lg:border-l border-border bg-[color:var(--bg-secondary)] flex flex-col gap-6 order-2 lg:order-1"
   >
     <div v-if="isLoading" class="animate-pulse space-y-4">
       <div class="h-4 bg-muted rounded w-1/4"></div>
@@ -44,19 +44,19 @@
             <span style="font-size: 60px;" class="material-icons text-[color:var(--text-primary)]">military_tech</span>
           </div>
           <h4 class="text-[10px] font-bold text-[color:var(--text-secondary)] mb-4 uppercase tracking-[0.2em]">پاداش موفقیت</h4>
-          <div class="flex items-center gap-6">
+          <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
             <div class="flex flex-col">
               <span class="text-xs text-[color:var(--text-secondary)]">امتیاز تجربه</span>
               <div class="flex items-center gap-1.5">
                 <span class="material-icons text-[color:var(--xp)] text-xl">grade</span>
-                <span class="font-bold text-[color:var(--text-primary)]">50+ XP</span>
+                <span class="font-bold text-[color:var(--text-primary)]">+{{ rewardValues.xp }} XP</span>
               </div>
             </div>
             <div class="flex flex-col">
               <span class="text-xs text-[color:var(--text-secondary)]">سکه طلا</span>
               <div class="flex items-center gap-1.5">
                 <span class="material-icons text-[color:var(--coins)] text-xl">paid</span>
-                <span class="font-bold text-[color:var(--text-primary)]">10+</span>
+                <span class="font-bold text-[color:var(--text-primary)]">+{{ rewardValues.coins }}</span>
               </div>
             </div>
           </div>
@@ -76,6 +76,10 @@ const props = defineProps<{
   problem: Problem
   isLoading: boolean
   renderedDescription: string
+  rewardValues: {
+    xp: number
+    coins: number
+  }
 }>()
 
 const difficultyClass = (level: 'Easy' | 'Medium' | 'Hard') => {

@@ -13,6 +13,11 @@ export interface SubmissionResult {
   results: TestResult[]
   error?: string
   logs?: string
+  xpEarned?: number
+  totalXp?: number
+  coinsEarned?: number
+  totalCoins?: number
+  streakDays?: number
 }
 
 export interface Problem {

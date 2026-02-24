@@ -20,7 +20,7 @@
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-5 text-sm leading-relaxed bg-[#0d0d0d] custom-scrollbar">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden p-5 text-sm leading-relaxed bg-[#0d0d0d] custom-scrollbar">
         <div v-if="result" class="space-y-6">
           <div
             v-for="(test, index) in result.results"

@@ -1,6 +1,6 @@
 // frontend/app.vue
 <template>
-  <div class="antialiased font-sans min-h-screen bg-background text-foreground">
+  <div class="antialiased font-sans min-h-screen bg-background text-foreground overflow-x-hidden">
     <ClientOnly>
       <GlobalHeader v-if="!hideHeader" />
       <template #fallback>
